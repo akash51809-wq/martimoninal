@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Matrimonial platform development blueprint for User and Admin modules." />
+  <title>Matrimonial Platform — Development Blueprint</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="Matrimonial Blueprint home">
+      <span class="brand-mark">M</span>
+      <span><strong>Matrimonial</strong><small>PRODUCT BLUEPRINT</small></span>
+    </a>
+    <span class="status"><i></i> Planning Phase</span>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="eyebrow"><span></span> SOFTWARE DEVELOPMENT PLAN</div>
+      <h1>One Platform.<br /><em>Two Experiences.</em></h1>
+      <p class="hero-copy">A clear module-by-module blueprint for building the matrimonial platform from scratch. Select a workspace to explore its pages, features and expected system logic.</p>
+      <div class="workspace-switch">
+        <a class="switch-card user-switch" href="#user">
+          <span class="switch-icon">♧</span>
+          <span class="switch-text"><strong>User Panel</strong><small>Members, profiles & matchmaking</small></span>
+          <span class="switch-arrow">↗</span>
+        </a>
+        <a class="switch-card admin-switch" href="#admin">
+          <span class="switch-icon">▦</span>
+          <span class="switch-text"><strong>Admin Panel</strong><small>Platform control & operations</small></span>
+          <span class="switch-arrow">↗</span>
+        </a>
+      </div>
+      <div class="hero-meta">
+        <span>01 <b>USER EXPERIENCE</b></span>
+        <span>02 <b>ADMIN CONTROL</b></span>
+        <span>03 <b>SHARED SYSTEM RULES</b></span>
+      </div>
+    </section>
+
+    <section class="overview section-wrap">
+      <div class="section-heading">
+        <div><span class="eyebrow">SYSTEM OVERVIEW</span><h2>How the platform is organised</h2></div>
+        <p>Each page will be developed as an independent module with its own API, validation and access rules.</p>
+      </div>
+      <div class="overview-grid">
+        <article class="overview-card"><span class="number">01</span><h3>User Website</h3><p>Registration, profile creation, partner preferences, discovery, requests and membership.</p><span class="tag">Member-facing</span></article>
+        <article class="overview-card"><span class="number">02</span><h3>Admin Dashboard</h3><p>Manage members, verification, plans, payments, reports, content and platform settings.</p><span class="tag">Restricted access</span></article>
+        <article class="overview-card"><span class="number">03</span><h3>Shared Backend</h3><p>Authentication, permissions, notifications, audit logs, file handling and business rules.</p><span class="tag">Node.js + MongoDB</span></article>
+      </div>
+    </section>
+
+    <section id="user" class="panel-section user-section">
+      <div class="panel-title">
+        <div><span class="eyebrow">WORKSPACE 01 / MEMBER SIDE</span><h2>User Panel</h2><p>Pages and logic available to a registered matrimonial member.</p></div>
+        <span class="panel-count">12 MODULES</span>
+      </div>
+      <div class="notice"><strong>Core rule</strong><span>A user can view public/allowed profile information, but private contact details and protected photos must be returned only after server-side permission checks.</span></div>
+      <div class="module-grid">
+        <article class="module-card"><div class="module-top"><span class="module-no">U01</span><span class="pill">Entry</span></div><h3>Home / Landing Page</h3><p>Public introduction and entry point for new visitors.</p><ul><li>Show platform introduction, benefits and membership highlights.</li><li>Show featured or success-story profiles only with consent.</li><li>Buttons for Register, Login and Browse public content.</li><li>Do not expose private member data in public pages or search indexing.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">U02</span><span class="pill">Authentication</span></div><h3>Register & Login</h3><p>Create and securely access a member account.</p><ul><li>Register with name, email/mobile, password and basic consent.</li><li>Verify email/mobile using OTP before activating the account.</li><li>Login, logout, forgot password and reset password flows.</li><li>Rate-limit OTP/login attempts; hash passwords and rotate refresh tokens.</li><li>Block suspended or deleted accounts from creating sessions.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">U03</span><span class="pill">Onboarding</span></div><h3>Create My Profile</h3><p>Collect the member's matrimonial biodata in guided steps.</p><ul><li>Personal, family, education, profession and lifestyle details.</li><li>Religion, community, mother tongue and location where applicable.</li><li>Upload profile photo and optional gallery/documents.</li><li>Save draft, validate required fields and show completion percentage.</li><li>Set visibility and consent preferences before publishing.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">U04</span><span class="pill">Profile</span></div><h3>My Profile & Edit</h3><p>View and maintain the member's own profile.</p><ul><li>Show profile preview, completion status and verification badges.</li><li>Edit fields with validation and keep a change history for sensitive edits.</li><li>Submit selected changes for admin re-approval if required.</li><li>Allow photo replacement, removal and privacy controls.</li><li>Pause profile, deactivate account or request account deletion.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">U05</span><span class="pill">Preferences</span></div><h3>Partner Preference</h3><p>Define what kind of partner the member is looking for.</p><ul><li>Age range, height, marital status and location range.</li><li>Education, occupation, income and lifestyle preferences.</li><li>Religion/community preferences only where the platform supports them.</li><li>Support must-have and flexible preferences separately.</li><li>Validate ranges and use preferences in matching/search APIs.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">U06</span><span class="pill">Discovery</span></div><h3>Search & Browse Profiles</h3><p>Find relevant profiles with controlled filters.</p><ul><li>Keyword, age, location, education, profession and other filters.</li><li>Sorting, pagination and saved searches.</li><li>Exclude own profile, blocked users, hidden and suspended profiles.</li><li>Apply membership limits and profile visibility rules on the server.</li><li>Return only fields the viewer is authorised to see.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">U07</span><span class="pill">Discovery</span></div><h3>Profile Details</h3><p>Show a detailed view of another member's profile.</p><ul><li>Display biodata sections according to the owner's privacy settings.</li><li>Mask phone, email and exact address by default.</li><li>Protect private photos with expiring/authorised access links.</li><li>Show verification status and report/block actions.</li><li>Record profile views according to the platform's privacy policy.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">U08</span><span class="pill">Engagement</span></div><h3>Interest & Requests</h3><p>Manage proposal and contact requests between members.</p><ul><li>Send, accept, reject, withdraw and cancel an interest request.</li><li>Prevent duplicate requests and requests to blocked members.</li><li>Show sent, received, accepted and declined request lists.</li><li>Unlock contact only after mutual acceptance and plan permission.</li><li>Notify both parties when request status changes.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">U09</span><span class="pill">Engagement</span></div><h3>Shortlist & Block List</h3><p>Let members organise profiles and control unwanted contact.</p><ul><li>Add/remove profiles from shortlist or favourites.</li><li>Maintain a private personal shortlist.</li><li>Block/unblock members and prevent future interactions.</li><li>Apply block rules to search, profile views, chat and requests.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">U10</span><span class="pill">Communication</span></div><h3>Chat & Notifications</h3><p>Communicate after the platform's eligibility rules are met.</p><ul><li>Enable chat only for accepted/mutual connections or eligible plans.</li><li>Real-time messages, unread count and conversation history.</li><li>Block/report from conversation; restrict attachments and spam.</li><li>In-app notifications for interests, matches and account activity.</li><li>Email/WhatsApp notifications only with consent and configured providers.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">U11</span><span class="pill">Billing</span></div><h3>Membership & Payments</h3><p>Purchase plans and view membership entitlements.</p><ul><li>Show plan price, duration, benefits and usage limits.</li><li>Create payment order on backend; verify signed gateway response/webhook.</li><li>Activate benefits only after verified payment confirmation.</li><li>Show invoices, transaction history, expiry and renewal options.</li><li>Never trust a payment-success redirect from the browser alone.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">U12</span><span class="pill">Support</span></div><h3>Settings, Help & Safety</h3><p>Give members control over account and safety actions.</p><ul><li>Manage password, contact verification and notification preferences.</li><li>Control profile/photo/contact visibility.</li><li>Submit complaints, report fake profiles and request support.</li><li>View terms, privacy policy, consent history and account deletion options.</li><li>Show safety guidance and emergency reporting route.</li></ul></article>
+      </div>
+    </section>
+
+    <section id="admin" class="panel-section admin-section">
+      <div class="panel-title">
+        <div><span class="eyebrow">WORKSPACE 02 / CONTROL SIDE</span><h2>Admin Panel</h2><p>Pages and logic used by authorised platform administrators.</p></div>
+        <span class="panel-count">12 MODULES</span>
+      </div>
+      <div class="notice admin-notice"><strong>Core rule</strong><span>Admin actions must be protected by role-based permissions, server-side checks and an audit log. A hidden button is not access control.</span></div>
+      <div class="module-grid">
+        <article class="module-card"><div class="module-top"><span class="module-no">A01</span><span class="pill">Access</span></div><h3>Admin Login</h3><p>Secure entry for staff and administrators.</p><ul><li>Separate admin authentication route and session policy.</li><li>Support MFA for privileged accounts.</li><li>Apply role/permission checks on every admin API.</li><li>Rate-limit login and record suspicious access attempts.</li><li>Never create a public admin registration endpoint.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">A02</span><span class="pill">Overview</span></div><h3>Dashboard & Analytics</h3><p>Show a quick operational summary of the platform.</p><ul><li>Total, active, pending, suspended and deleted members.</li><li>New registrations, profile completion and verification queue.</li><li>Membership sales, successful payments, refunds and revenue.</li><li>Charts by date, plan and registration source.</li><li>Use date filters and permission-aware aggregate APIs.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">A03</span><span class="pill">Members</span></div><h3>Manage Members</h3><p>Search and manage user accounts.</p><ul><li>Search by member ID, name, email/mobile and status.</li><li>View account/profile summary and verification history.</li><li>Activate, suspend or restrict accounts with a reason.</li><li>Admin edits to sensitive fields must be logged.</li><li>Export only permitted fields with export audit records.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">A04</span><span class="pill">Moderation</span></div><h3>Profile Approval</h3><p>Review new profiles and changes before publication.</p><ul><li>Queues for new profiles, edited profiles and photos.</li><li>Approve, reject or request correction with a reason.</li><li>Check suspicious/duplicate profiles and prohibited content.</li><li>Keep reviewer, timestamp and decision history.</li><li>Only approved profiles become discoverable where required.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">A05</span><span class="pill">Verification</span></div><h3>Verification Centre</h3><p>Review member verification evidence.</p><ul><li>Track mobile/email verification separately from identity checks.</li><li>Review submitted documents only when necessary and lawful.</li><li>Approve/reject with reason and expiry/re-verification rules.</li><li>Restrict document access to specifically authorised staff.</li><li>Record every view, download and status change.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">A06</span><span class="pill">Plans</span></div><h3>Membership Plans</h3><p>Configure plans and their feature entitlements.</p><ul><li>Create/edit plans, price, validity and display order.</li><li>Set limits for contact unlocks, interests, chats and visibility.</li><li>Enable/disable plans without corrupting existing subscriptions.</li><li>Version plan benefits so old purchases retain their terms.</li><li>Define trial, coupon and renewal rules if required.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">A07</span><span class="pill">Finance</span></div><h3>Payments & Transactions</h3><p>Track money movement and resolve payment issues.</p><ul><li>View orders, gateway references, payment status and invoices.</li><li>Process refunds through supported gateway workflow.</li><li>Handle failed, pending, duplicate and webhook-retry cases.</li><li>Reconcile gateway reports with internal transaction records.</li><li>Never edit payment status without an auditable reason.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">A08</span><span class="pill">Safety</span></div><h3>Reports & Complaints</h3><p>Handle member reports and platform abuse.</p><ul><li>Queue reports for fake profile, harassment, spam or fraud.</li><li>View relevant evidence with restricted access.</li><li>Assign cases, add internal notes and set resolution status.</li><li>Warn, restrict or suspend accounts according to policy.</li><li>Track resolution time and repeat offenders.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">A09</span><span class="pill">Content</span></div><h3>Website Content</h3><p>Manage public information without code changes.</p><ul><li>Edit banners, FAQs, success stories and static pages.</li><li>Manage testimonials only with documented consent.</li><li>Set SEO title, description and social sharing metadata.</li><li>Preview and publish content with author and publish history.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">A10</span><span class="pill">Operations</span></div><h3>Notifications & Templates</h3><p>Control transactional communication.</p><ul><li>Manage email, SMS and WhatsApp message templates.</li><li>Configure provider credentials in secure server-side secrets.</li><li>View delivery status, retries and provider error logs.</li><li>Respect opt-in, opt-out and communication preferences.</li><li>Do not expose API keys or SMTP passwords in frontend responses.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">A11</span><span class="pill">Staff</span></div><h3>Admin Users & Roles</h3><p>Give staff only the access they need.</p><ul><li>Create staff accounts and assign granular permissions.</li><li>Separate super admin, moderator, support and finance roles.</li><li>Allow permission changes and immediate session revocation.</li><li>Log login, data access, exports and sensitive actions.</li></ul></article>
+        <article class="module-card"><div class="module-top"><span class="module-no">A12</span><span class="pill">Configuration</span></div><h3>Settings & Audit Logs</h3><p>Manage platform rules and trace important actions.</p><ul><li>Configure platform name, contact details and feature switches.</li><li>Set profile approval, privacy defaults and retention policies.</li><li>Maintain audit logs for admin and system-level changes.</li><li>Manage backups, data export and incident response procedures.</li><li>Keep secrets in environment/secret manager, never in source code.</li></ul></article>
+      </div>
+    </section>
+
+    <section class="shared section-wrap">
+      <div class="section-heading"><div><span class="eyebrow">APPLIES TO BOTH PANELS</span><h2>Shared system rules</h2></div><p>These rules belong in backend services and database design—not just in page-level UI.</p></div>
+      <div class="shared-grid">
+        <article><span>01</span><h3>Authentication & Permissions</h3><p>Secure sessions, password hashing, OTP throttling, role-based access and server-side authorisation.</p></article>
+        <article><span>02</span><h3>Privacy by Default</h3><p>Minimise personal data, mask contact details, protect private media and record consent/preferences.</p></article>
+        <article><span>03</span><h3>Data & API Validation</h3><p>Validate every request on the server, use pagination, indexes, safe file uploads and consistent API errors.</p></article>
+        <article><span>04</span><h3>Audit & Reliability</h3><p>Track sensitive actions, handle payment webhooks idempotently, back up data and monitor failures.</p></article>
+      </div>
+    </section>
+
+    <section class="build-order section-wrap">
+      <div class="section-heading"><div><span class="eyebrow">IMPLEMENTATION ORDER</span><h2>Recommended coding sequence</h2></div><p>Build and test one complete flow at a time. Do not start all modules simultaneously.</p></div>
+      <ol class="steps">
+        <li><b>Foundation</b><span>Project setup, database, environment config, logging and API structure.</span></li>
+        <li><b>Authentication</b><span>Member/admin login, OTP, sessions, roles and permissions.</span></li>
+        <li><b>Member Core</b><span>Registration, biodata, profile editing and partner preferences.</span></li>
+        <li><b>Discovery</b><span>Search, profile details, shortlist, interests and block/report.</span></li>
+        <li><b>Admin Operations</b><span>Dashboard, member management, approvals and verification.</span></li>
+        <li><b>Business</b><span>Plans, payments, invoices, notifications and support.</span></li>
+        <li><b>Advanced</b><span>Chat, smart matching, horoscope and other optional capabilities.</span></li>
+        <li><b>Launch Readiness</b><span>Security tests, privacy review, backups, monitoring and deployment.</span></li>
+      </ol>
+    </section>
+  </main>
+
+  <footer><span class="brand-mark">M</span><span><strong>Matrimonial Platform</strong><small>Development blueprint · Version 1.0</small></span><a href="#top">Back to top ↑</a></footer>
+</body>
+</html>
