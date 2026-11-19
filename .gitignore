@@ -1,0 +1,155 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Environment & Secret Files (CRITICAL: NEVER COMMIT TO GIT)
+.env
+.env.*
+!.env.example
+*.env
+*.pem
+*.key
+*.cert
+*.pfx
+secrets/
+server/data/
+server/data/*.json
+service-account*.json
+firebase-adminsdk*.json
+google-services*.json
+GoogleService-Info*.plist
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Server public files
+server/public
+
+# Vite config
+vite.config.ts.*
+
+# Archive files
+*.tar.gz
+
+# Local data
+.local-data/
+.local/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+tmp/
+temp/
+
+# Replit specific
+.replit
+
+# Temporary setup and test files
+test-*.js
+debug-*.js
+fix-*.js
+setup-*.js
+create-*.js
+add-*.js
+upgrade-*.js
+check-*.js
+register-*.js
+bypass-*.js
+refresh-*.js
+quick-*.js
+simple-*.js
+auto-*.js
+firebase-setup*.js
+corrected-*.js
+temp-*.js
+working-*.js
+browser-*.js
+ultra-*.js
+
+# Documentation files
+QUICK_SETUP_GUIDE.md
+LIKE_FUNCTIONALITY_SETUP.md
+replit.md
+firebase-security-rules.txt
+
+# Setup scripts (remove after use)
+setup-github.sh
+cleanup-repo.sh
+
+# Attached assets
+attached_assets/

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="saffronGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF7700" />
+      <stop offset="50%" stop-color="#FF5A1E" />
+      <stop offset="100%" stop-color="#E64A19" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#FF7700" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Left Ring -->
+  <ellipse cx="40" cy="55" rx="24" ry="24" stroke="url(#saffronGrad)" stroke-width="6.5" fill="none" filter="url(#softGlow)" />
+  
+  <!-- Right Ring -->
+  <ellipse cx="60" cy="55" rx="24" ry="24" stroke="url(#goldGrad)" stroke-width="6.5" fill="none" />
+  
+  <!-- Interlocking accent -->
+  <path d="M 40 31 A 24 24 0 0 1 54 36" stroke="url(#saffronGrad)" stroke-width="6.5" stroke-linecap="round" fill="none" />
+
+  <!-- Diamond / Heart Jewel on top -->
+  <path d="M 50 18 L 57 26 L 50 34 L 43 26 Z" fill="url(#saffronGrad)" />
+  <circle cx="50" cy="26" r="2.5" fill="#FFFFFF" />
+  <path d="M 47 21 L 50 18 L 53 21" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" />
+</svg>

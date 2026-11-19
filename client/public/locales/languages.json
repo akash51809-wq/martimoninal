@@ -1,0 +1,7 @@
+[
+  { "code": "en", "label": "English", "nativeLabel": "English", "shortCode": "EN" },
+  { "code": "hi", "label": "Hindi", "nativeLabel": "हिंदी (Hindi)", "shortCode": "HI" },
+  { "code": "mr", "label": "Marathi", "nativeLabel": "मराठी (Marathi)", "shortCode": "MR" },
+  { "code": "gu", "label": "Gujarati", "nativeLabel": "ગુજરાતી (Gujarati)", "shortCode": "GU" },
+  { "code": "ta", "label": "Tamil", "nativeLabel": "தமிழ் (Tamil)", "shortCode": "TA" }
+]

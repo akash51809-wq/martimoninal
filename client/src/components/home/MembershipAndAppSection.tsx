@@ -1,0 +1,242 @@
+import React from "react";
+import { Link } from "wouter";
+import { MOCK_VIP_PLANS } from "@/data/mockData";
+import { POPULAR_CATEGORIES } from "@/data/homepageData";
+import { Button } from "@/components/ui/button";
+import {
+  Check,
+  Crown,
+  Smartphone,
+  ArrowRight,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
+
+interface MembershipAndAppSectionProps {
+  onSelectPlan: (planName: string) => void;
+  onSelectCommunityFilter: (community: string) => void;
+  onOpenRegister: () => void;
+}
+
+export const MembershipAndAppSection: React.FC<MembershipAndAppSectionProps> = ({
+  onSelectPlan,
+  onSelectCommunityFilter,
+  onOpenRegister,
+}) => {
+  return (
+    <>
+      {/* Royal Membership Plans */}
+      <section
+        id="membership"
+        className="py-16 sm:py-20 bg-gradient-to-b from-[#FAF3EA] via-[#FFFDF9] to-[#FFFDF9]"
+      >
+        <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-20">
+          <div className="text-center max-w-3xl mx-auto mb-12 space-y-2.5">
+            <span className="inline-flex items-center gap-1.5 text-sm font-bold uppercase tracking-widest text-[#EA580C]">
+              <Crown className="w-4 h-4" />
+              Assisted &amp; VIP Plans
+            </span>
+            <h2 className="font-serif-royal text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#2B120C]">
+              Royal Membership Plans
+            </h2>
+            <p className="text-base sm:text-lg text-[#5C4740]">
+              Start free with verified browsing. Upgrade anytime to unlock
+              direct contact numbers, Kundli reports, and dedicated advisors.
+            </p>
+          </div>
+
+          <div className="flex lg:grid overflow-x-auto snap-x snap-mandatory gap-4 pt-5 pb-3 -mx-4 px-4 no-scrollbar lg:mx-0 lg:px-0 lg:pt-0 lg:pb-0 lg:grid-cols-3 lg:gap-8 items-stretch">
+            {MOCK_VIP_PLANS.map((plan) => {
+              const isPopular = Boolean(plan.popular);
+              return (
+                <div
+                  key={plan.id}
+                  className={`w-[84vw] max-w-[360px] lg:w-auto lg:max-w-none shrink-0 snap-center relative rounded-3xl p-7 flex flex-col justify-between transition-all duration-300 ${
+                    isPopular
+                      ? "bg-gradient-to-b from-[#3B0A18] to-[#240610] text-white border-2 border-amber-400 shadow-[0_24px_60px_-15px_rgba(234,88,12,0.32)] lg:-translate-y-2"
+                      : "bg-white text-[#2B120C] border border-amber-200 shadow-[0_12px_36px_-15px_rgba(124,45,18,0.1)]"
+                  }`}
+                >
+                  {isPopular && (
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-saffron-gradient text-white text-[11px] font-bold uppercase tracking-wider shadow-md whitespace-nowrap">
+                      Most Popular Choice
+                    </div>
+                  )}
+
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-4">
+                      <span
+                        className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full ${
+                          isPopular
+                            ? "bg-amber-400/20 text-amber-300 border border-amber-300/30"
+                            : "bg-amber-50 text-[#C2410C] border border-amber-200"
+                        }`}
+                      >
+                        {plan.duration}
+                      </span>
+                      <span
+                        className={`text-xs font-bold ${
+                          isPopular ? "text-emerald-300" : "text-emerald-700"
+                        }`}
+                      >
+                        {plan.discount}
+                      </span>
+                    </div>
+
+                    <h3
+                      className={`font-serif-royal text-2xl font-bold ${
+                        isPopular ? "text-white" : "text-[#2B120C]"
+                      }`}
+                    >
+                      {plan.name}
+                    </h3>
+
+                    <div className="flex items-baseline gap-2.5 mt-3 pb-5 border-b border-current/10">
+                      <span
+                        className={`font-serif-royal text-3xl sm:text-4xl font-bold ${
+                          isPopular ? "text-amber-300" : "text-[#EA580C]"
+                        }`}
+                      >
+                        {plan.price}
+                      </span>
+                      <span
+                        className={`text-sm line-through ${
+                          isPopular ? "text-amber-100/50" : "text-[#8C6D62]"
+                        }`}
+                      >
+                        {plan.originalPrice}
+                      </span>
+                    </div>
+
+                    <ul className="space-y-3.5 my-6">
+                      {plan.features.map((feat) => (
+                        <li key={feat} className="flex items-start gap-2.5 text-[15px]">
+                          <span
+                            className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                              isPopular
+                                ? "bg-amber-400/20 text-amber-300"
+                                : "bg-orange-100 text-[#EA580C]"
+                            }`}
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                          </span>
+                          <span
+                            className={
+                              isPopular ? "text-amber-50/95" : "text-[#4E342E]"
+                            }
+                          >
+                            {feat}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <Button
+                    type="button"
+                    onClick={() => onSelectPlan(plan.name)}
+                    className={`w-full h-12 rounded-xl font-semibold text-base transition-all ${
+                      isPopular
+                        ? "bg-saffron-gradient hover:opacity-95 text-white shadow-saffron-sm"
+                        : "bg-[#3B0A18] hover:bg-[#5B1325] text-white"
+                    }`}
+                  >
+                    Choose {plan.name}
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Browse by Community & Cities */}
+      <section className="py-12 bg-[#FFFDF9] border-t border-amber-100">
+        <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-20 space-y-6">
+          <div className="text-center space-y-2">
+            <h3 className="font-serif-royal text-2xl sm:text-3xl font-bold text-[#2B120C]">
+              Explore Verified Alliances Across India &amp; Global NRIs
+            </h3>
+            <p className="text-sm sm:text-base text-[#5C4740]">
+              Click any community to preview curated profiles instantly
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {POPULAR_CATEGORIES.communities.map((comm) => (
+              <button
+                key={comm}
+                type="button"
+                onClick={() => onSelectCommunityFilter(comm)}
+                className="px-4 py-2 rounded-full bg-white border border-amber-200 text-sm sm:text-[15px] font-medium text-[#4E342E] hover:border-[#FF7700] hover:bg-orange-50 hover:text-[#EA580C] transition-colors shadow-sm"
+              >
+                {comm} Matrimony
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-2.5 text-sm text-[#785C52]">
+            <span className="font-semibold text-[#3B0A18]">Top Cities:</span>
+            {POPULAR_CATEGORIES.cities.map((city, i) => (
+              <React.Fragment key={city}>
+                <button
+                  type="button"
+                  onClick={onOpenRegister}
+                  className="hover:text-[#EA580C] transition-colors"
+                >
+                  {city}
+                </button>
+                {i < POPULAR_CATEGORIES.cities.length - 1 && (
+                  <span className="text-amber-300">•</span>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Final Editorial CTA + Preserved Mobile App Companion Banner */}
+      <section className="py-16 bg-gradient-to-br from-[#FFF4E6] via-[#FFF9F2] to-[#FFEAD5] border-t border-amber-200/80">
+        <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-20">
+          <div className="rounded-3xl bg-white border border-amber-200 shadow-[0_20px_60px_-15px_rgba(154,52,18,0.15)] p-8 sm:p-12 flex flex-col lg:flex-row items-center justify-between gap-8">
+            <div className="space-y-3 text-center lg:text-left max-w-2xl">
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[#C2410C] text-sm font-semibold">
+                <ShieldCheck className="w-4 h-4" />
+                Same Account • Web &amp; Mobile Ready
+              </div>
+              <h2 className="font-serif-royal text-2xl sm:text-4xl font-bold text-[#2B120C]">
+                Begin Your Search With Complete Peace of Mind
+              </h2>
+              <p className="text-base sm:text-lg text-[#5C4740]">
+                Create your free Vivah Kar Lo profile today, or preview our
+                interactive mobile app interface saved alongside this platform.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-3.5 shrink-0">
+              <Button
+                type="button"
+                onClick={onOpenRegister}
+                className="h-12 px-7 rounded-full bg-saffron-gradient hover:opacity-95 text-white font-semibold text-base shadow-saffron-sm"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Register Free Now
+              </Button>
+              <Link href="/mobile">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-12 px-6 rounded-full border-amber-300 text-[#3B0A18] hover:bg-amber-50 font-semibold text-base"
+                >
+                  <Smartphone className="w-4 h-4 mr-2 text-[#EA580C]" />
+                  Open Mobile App UI
+                  <ArrowRight className="w-4 h-4 ml-1.5" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+};

@@ -1,0 +1,195 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Saffron Theme - Bhagwa / Kesari & Royal Gold / Ivory */
+  --background: 35 100% 99%; /* #FFFDF9 warm ivory */
+  --foreground: 220 25% 15%; /* #1e293b dark charcoal */
+  --card: 0 0% 100%;
+  --card-foreground: 220 25% 15%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 220 25% 15%;
+  
+  /* Saffron Primary (Kesari) */
+  --primary: 24 100% 50%; /* #FF6600 vibrant saffron */
+  --primary-foreground: 0 0% 100%;
+  
+  /* Royal Gold & Supportive Warm Amber */
+  --secondary: 38 92% 50%; /* #f59e0b royal gold */
+  --secondary-foreground: 0 0% 100%;
+  
+  --muted: 30 30% 96%;
+  --muted-foreground: 220 15% 45%;
+  
+  --accent: 25 100% 96%; /* #fff3e6 */
+  --accent-foreground: 24 100% 45%;
+  
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  
+  --border: 28 60% 91%; /* #fde4ce warm border */
+  --input: 28 40% 96%;
+  --ring: 24 100% 50%;
+  
+  --radius: 1.25rem;
+  
+  /* Specific Saffron Matrimony Colors */
+  --saffron-50: #FFF7ED;
+  --saffron-100: #FFEDD5;
+  --saffron-200: #FED7AA;
+  --saffron-400: #FB923C;
+  --saffron-500: #FF7700;
+  --saffron-600: #EA580C;
+  --saffron-700: #C2410C;
+  --gold-500: #F59E0B;
+  --gold-600: #D97706;
+  --crimson-600: #B91C1C;
+  --crimson-700: #991B1B;
+}
+
+.dark {
+  --background: 224 71% 4%;
+  --foreground: 213 31% 91%;
+  --card: 224 71% 7%;
+  --card-foreground: 213 31% 91%;
+  --popover: 224 71% 6%;
+  --popover-foreground: 213 31% 91%;
+  --primary: 24 100% 52%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 38 92% 50%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 223 47% 11%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 24 60% 15%;
+  --accent-foreground: 24 100% 70%;
+  --destructive: 0 63% 31%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 24 30% 20%;
+  --input: 24 30% 20%;
+  --ring: 24 100% 52%;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  * {
+    @apply border-border;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply font-sans antialiased bg-[#FFFDF9] text-foreground selection:bg-[#FF7700]/20 selection:text-[#EA580C];
+    font-family: 'Poppins', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+/* Custom fonts & effects */
+.font-cursive {
+  font-family: 'Great Vibes', cursive;
+}
+
+.font-serif-royal {
+  font-family: 'Cinzel', serif;
+}
+
+/* Saffron gradient utilities */
+.bg-saffron-gradient {
+  background: linear-gradient(135deg, #FF7700 0%, #FF5A1E 50%, #E64A19 100%);
+}
+
+.bg-saffron-soft-gradient {
+  background: linear-gradient(180deg, rgba(255, 119, 0, 0.08) 0%, rgba(255, 247, 237, 0.4) 100%);
+}
+
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+}
+
+.bg-royal-gradient {
+  background: linear-gradient(135deg, #FF7700 0%, #E11D48 100%);
+}
+
+.shadow-saffron {
+  box-shadow: 0 10px 25px -5px rgba(255, 119, 0, 0.35), 0 8px 10px -6px rgba(255, 119, 0, 0.2);
+}
+
+.shadow-saffron-sm {
+  box-shadow: 0 4px 14px 0 rgba(255, 119, 0, 0.25);
+}
+
+.shadow-card-elevated {
+  box-shadow: 0 12px 32px -4px rgba(234, 88, 12, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+}
+
+/* Curved cutout top mask */
+.curved-scallop-mask {
+  border-top-left-radius: 2.25rem;
+  border-top-right-radius: 2.25rem;
+}
+
+/* Hide scrollbars for clean mobile feel */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Realistic mobile phone chassis */
+.mobile-device-frame {
+  max-width: 420px;
+  min-height: 860px;
+  height: 92vh;
+  margin: 0 auto;
+  border-radius: 48px;
+  box-shadow: 
+    0 0 0 12px #1c1c1e,
+    0 0 0 14px #2c2c2e,
+    0 25px 60px -15px rgba(0, 0, 0, 0.4),
+    0 10px 20px -5px rgba(255, 119, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+@media (max-width: 640px) {
+  .mobile-device-frame {
+    max-width: 100%;
+    min-height: 100vh;
+    height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* Prevent iOS Safari input auto-zoom and guarantee touch-friendly typography */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Global Mobile-First Responsive Safeguards */
+html,
+body {
+  overflow-x: clip;
+  max-width: 100vw;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+.pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
