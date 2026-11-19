@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import type { AccountBundle, UserSessionRecord } from "@/types/authTypes";
 import {
   MONTHLY_REVENUE_SERIES,
