@@ -12,6 +12,7 @@ import {
   Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface CuratedProfilesSectionProps {
   filters: HeroSearchFilters;
@@ -30,6 +31,7 @@ export const CuratedProfilesSection: React.FC<CuratedProfilesSectionProps> = ({
   onViewProfile,
   onOpenRegister,
 }) => {
+  const { t } = useLanguage();
   const [quickTab, setQuickTab] = useState<
     "all" | "brides" | "grooms" | "kundli"
   >("all");
@@ -80,10 +82,10 @@ export const CuratedProfilesSection: React.FC<CuratedProfilesSectionProps> = ({
           <div className="space-y-2.5 max-w-3xl">
             <span className="inline-flex items-center gap-1.5 text-sm font-bold uppercase tracking-widest text-[#EA580C]">
               <Sparkles className="w-4 h-4" />
-              Curated Verified Alliances
+              {t("home.curated.title", "Curated Verified Alliances")}
             </span>
             <h2 className="font-serif-royal text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#2B120C]">
-              Handpicked Profiles For Your Family
+              {t("home.curated.subtitle", "Handpicked Profiles For Your Family")}
             </h2>
             <p className="text-base sm:text-lg text-[#5C4740]">
               Every profile shown is ID-screened with verified education,
@@ -95,9 +97,9 @@ export const CuratedProfilesSection: React.FC<CuratedProfilesSectionProps> = ({
           <div className="flex md:flex-wrap items-center gap-2.5 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4 md:mx-0 md:px-0 md:pb-0">
             {(
               [
-                { id: "all", label: "All Curated" },
-                { id: "brides", label: "Brides" },
-                { id: "grooms", label: "Grooms" },
+                { id: "all", label: t("home.hero.all", "All Curated") },
+                { id: "brides", label: t("home.hero.bride", "Brides") },
+                { id: "grooms", label: t("home.hero.groom", "Grooms") },
                 { id: "kundli", label: "31+ Gunas Match" },
               ] as const
             ).map((tab) => (
@@ -280,7 +282,7 @@ export const CuratedProfilesSection: React.FC<CuratedProfilesSectionProps> = ({
                             isLiked ? "fill-current" : ""
                           }`}
                         />
-                        {isLiked ? "Interest Sent" : "Send Interest"}
+                        {isLiked ? t("overview.sent", "Interest Sent") : t("home.curated.sendInterest", "Send Interest")}
                       </Button>
                     </div>
                   </div>
@@ -298,7 +300,7 @@ export const CuratedProfilesSection: React.FC<CuratedProfilesSectionProps> = ({
             variant="outline"
             className="rounded-full px-7 py-6 border-2 border-[#EA580C] text-[#EA580C] hover:bg-[#EA580C] hover:text-white font-semibold text-sm transition-all"
           >
-            Unlock All 2.4M+ Verified Profiles — Register Free
+            {t("home.curated.viewAll", "Unlock All Verified Profiles — Register Free")}
           </Button>
         </div>
       </div>

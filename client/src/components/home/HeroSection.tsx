@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MOCK_COMMUNITIES, MOCK_LANGUAGES } from "@/data/mockData";
+import { useLanguage } from "@/context/LanguageContext";
 
 export interface HeroSearchFilters {
   lookingFor: "Female" | "Male" | "All";
@@ -31,6 +32,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onSearchSubmit,
   onOpenRegister,
 }) => {
+  const { t } = useLanguage();
   const ageOptions = Array.from({ length: 20 }, (_, i) => 21 + i);
 
   return (
@@ -57,33 +59,28 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-100 text-[#EA580C]">
                 <Star className="w-3 h-3 fill-current" />
               </span>
-              <span>India&apos;s Premier Verified Family Matrimony</span>
+              <span>{t("home.hero.badge", "India's Premier Verified Family Matrimony")}</span>
               <span className="hidden sm:inline text-amber-500">•</span>
               <span className="hidden sm:inline text-emerald-700 font-semibold">
-                100% ID Screened
+                {t("home.hero.trust1", "100% ID Screened")}
               </span>
             </div>
 
             {/* Hero Title */}
             <div className="space-y-3">
               <p className="font-cursive text-3xl sm:text-4xl text-[#C2410C]">
-                Where Two Families Become One
+                {t("home.tagline", "Where Two Families Become One")}
               </p>
               <h1 className="font-serif-royal text-4xl sm:text-5xl lg:text-[58px] xl:text-[64px] font-bold tracking-tight text-[#2B120C] leading-[1.12]">
-                Where Tradition Meets Your{" "}
+                {t("home.hero.title1", "Where Tradition Meets Your")}{" "}
                 <span className="bg-gradient-to-r from-[#FF6B00] via-[#EA580C] to-[#D97706] bg-clip-text text-transparent">
-                  Forever
+                  {t("home.hero.title2", "Forever")}
                 </span>
               </h1>
             </div>
 
             <p className="text-base sm:text-lg xl:text-xl text-[#5C4740] max-w-3xl mx-auto lg:mx-0 leading-relaxed">
-              Thoughtfully curated, Aadhaar &amp; selfie-verified profiles across
-              communities—combining{" "}
-              <strong className="font-semibold text-[#3B0A18]">
-                36-Guna Vedic Kundli matching
-              </strong>{" "}
-              with dignified family privacy.
+              {t("home.hero.subtitle", "Thoughtfully curated, Aadhaar & selfie-verified profiles across communities—combining 36-Guna Vedic Kundli matching with dignified family privacy.")}
             </p>
 
             {/* Quick Match Finder Card */}
@@ -91,14 +88,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <div className="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-amber-100">
                 <div className="flex items-center gap-2.5">
                   <span className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-[#7C2D12]">
-                    Looking for a
+                    {t("home.hero.lookingFor", "Looking for a")}
                   </span>
                   <div className="inline-flex rounded-full bg-amber-50 p-1 border border-amber-200/70">
                     {(
                       [
-                        { label: "Bride", value: "Female" },
-                        { label: "Groom", value: "Male" },
-                        { label: "All", value: "All" },
+                        { labelKey: "home.hero.bride", label: "Bride", value: "Female" },
+                        { labelKey: "home.hero.groom", label: "Groom", value: "Male" },
+                        { labelKey: "home.hero.all", label: "All", value: "All" },
                       ] as const
                     ).map((opt) => (
                       <button
@@ -113,7 +110,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                             : "text-[#5C4740] hover:text-[#EA580C]"
                         }`}
                       >
-                        {opt.label}
+                        {t(opt.labelKey, opt.label)}
                       </button>
                     ))}
                   </div>
@@ -123,7 +120,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   onClick={onOpenRegister}
                   className="text-sm font-semibold text-[#EA580C] hover:text-[#9A3412] underline underline-offset-4"
                 >
-                  Free Profile Creation →
+                  {t("home.nav.register", "Free Profile Creation")} →
                 </button>
               </div>
 
@@ -131,7 +128,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 {/* Age Range */}
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-[#785C52] mb-1.5">
-                    Age Preference
+                    {t("home.hero.age", "Age Preference")}
                   </label>
                   <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1.5">
                     <select
@@ -149,11 +146,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     >
                       {ageOptions.map((age) => (
                         <option key={age} value={age}>
-                          {age} yrs
+                          {age} {t("home.hero.years", "yrs")}
                         </option>
                       ))}
                     </select>
-                    <span className="text-sm text-[#8C6D62] font-medium">to</span>
+                    <span className="text-sm text-[#8C6D62] font-medium">{t("home.hero.to", "to")}</span>
                     <select
                       aria-label="Maximum Age"
                       value={filters.maxAge}
@@ -169,7 +166,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                         .filter((a) => a >= filters.minAge)
                         .map((age) => (
                           <option key={age} value={age}>
-                            {age} yrs
+                            {age} {t("home.hero.years", "yrs")}
                           </option>
                         ))}
                     </select>
@@ -179,7 +176,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 {/* Community */}
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-[#785C52] mb-1.5">
-                    Community
+                    {t("home.hero.religion", "Religion / Community")}
                   </label>
                   <select
                     aria-label="Select Community"
@@ -200,7 +197,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 {/* Mother Tongue */}
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-[#785C52] mb-1.5">
-                    Mother Tongue
+                    {t("home.hero.motherTongue", "Mother Tongue")}
                   </label>
                   <select
                     aria-label="Select Mother Tongue"
@@ -213,7 +210,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     }
                     className="w-full h-12 rounded-xl border border-amber-200 bg-[#FFFDF9] px-3 text-base sm:text-[15px] font-medium text-[#2B120C] whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-[#FF7700]/40"
                   >
-                    <option value="All">All Languages</option>
+                    <option value="All">{t("home.hero.all", "All Languages")}</option>
                     {MOCK_LANGUAGES.map((lang) => (
                       <option key={lang.code} value={lang.label}>
                         {lang.label}
@@ -230,7 +227,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     className="w-full lg:w-auto lg:px-7 h-12 rounded-xl bg-saffron-gradient hover:opacity-95 text-white font-semibold text-base shadow-saffron-sm transition-transform active:scale-[0.98]"
                   >
                     <Search className="w-4 h-4 mr-1.5" />
-                    Find
+                    {t("home.hero.searchBtn", "Search Matches")}
                   </Button>
                 </div>
               </div>
@@ -240,15 +237,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-7 gap-y-2.5 pt-1 text-sm sm:text-base text-[#5C4740]">
               <span className="inline-flex items-center gap-2 font-medium">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                2.4M+ Verified Profiles
+                {t("home.hero.trust1", "100% ID Verified")}
               </span>
               <span className="inline-flex items-center gap-2 font-medium">
                 <ShieldCheck className="w-4 h-4 text-[#EA580C]" />
-                Zero-Spam Privacy Shield
+                {t("home.hero.trust2", "Vedic Kundli Match")}
               </span>
               <span className="inline-flex items-center gap-2 font-medium">
                 <HeartHandshake className="w-4 h-4 text-amber-600" />
-                185,000+ Happy Alliances
+                {t("home.hero.trust3", "Direct Family Connect")}
               </span>
             </div>
           </div>

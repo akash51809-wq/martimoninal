@@ -1,8 +1,10 @@
 import React from "react";
 import { SUCCESS_STORIES } from "@/data/homepageData";
 import { Heart, MapPin, Quote, Sparkles } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export const SuccessStoriesSection: React.FC = () => {
+  const { t } = useLanguage();
   return (
     <section
       id="stories"
@@ -15,11 +17,10 @@ export const SuccessStoriesSection: React.FC = () => {
             Real Couples • Real Blessings
           </span>
           <h2 className="font-serif-royal text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#2B120C]">
-            Millions of Hearts, Timeless Stories
+            {t("home.stories.title", "Millions of Hearts, Timeless Stories")}
           </h2>
           <p className="text-base sm:text-lg text-[#5C4740]">
-            Discover how families across India found lifelong harmony through
-            verified introductions on Vivah Kar Lo.
+            {t("home.stories.subtitle", "Discover how families across India found lifelong harmony through verified introductions on Vivah Kar Lo.")}
           </p>
         </div>
 

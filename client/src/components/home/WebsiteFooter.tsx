@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { VivahBrandLogo } from "@/components/home/VivahBrandLogo";
 import { POPULAR_CATEGORIES } from "@/data/homepageData";
 import { Mail, Phone, MapPin, ShieldCheck, Smartphone } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface WebsiteFooterProps {
   onOpenAuth: (tab: "login" | "register") => void;
@@ -13,6 +14,7 @@ export const WebsiteFooter: React.FC<WebsiteFooterProps> = ({
   onOpenAuth,
   onSelectCommunityFilter,
 }) => {
+  const { t } = useLanguage();
   const year = new Date().getFullYear();
 
   return (
@@ -23,9 +25,7 @@ export const WebsiteFooter: React.FC<WebsiteFooterProps> = ({
           <div className="space-y-4">
             <VivahBrandLogo size="lg" darkBg={true} />
             <p className="text-sm sm:text-[15px] text-amber-100/75 leading-relaxed">
-              Vivah Kar Lo connects verified Indian &amp; global NRI
-              families with dignity, 36-Guna Vedic Kundli matching, and
-              uncompromising privacy.
+              {t("home.footer.desc", "Vivah Kar Lo connects verified Indian & global NRI families with dignity, 36-Guna Vedic Kundli matching, and uncompromising privacy.")}
             </p>
             <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-amber-300/20 text-xs font-semibold text-amber-300">
               <ShieldCheck className="w-4 h-4" />
@@ -134,7 +134,7 @@ export const WebsiteFooter: React.FC<WebsiteFooterProps> = ({
         </div>
 
         <div className="mt-12 pt-6 border-t border-amber-200/15 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-amber-100/65">
-          <p>© {year} Vivah Kar Lo. Crafted for Trusted Indian Alliances.</p>
+          <p>© {year} Vivah Kar Lo. {t("home.footer.copyright", "All rights reserved. Crafted for Trusted Indian Alliances.")}</p>
           <div className="flex items-center gap-5">
             <Link href="/about" className="hover:text-amber-300 transition-colors">
               About Us

@@ -13,11 +13,24 @@ import {
   EyeOff,
   Crown,
 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 const stepIcons = [UserPlus, Sparkles, MessageCircleHeart];
 const pillarIcons = [ShieldCheck, Lock, EyeOff, Crown];
 
+const stepTitleKeys = [
+  "home.journey.step1Title",
+  "home.journey.step2Title",
+  "home.journey.step3Title",
+];
+const stepDescKeys = [
+  "home.journey.step1Desc",
+  "home.journey.step2Desc",
+  "home.journey.step3Desc",
+];
+
 export const JourneyAndTrustSection: React.FC = () => {
+  const { t } = useLanguage();
   return (
     <>
       {/* 3-Step Journey Section */}
@@ -28,14 +41,13 @@ export const JourneyAndTrustSection: React.FC = () => {
         <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-20">
           <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
             <span className="font-cursive text-3xl sm:text-4xl text-[#C2410C]">
-              Simple, Respectful &amp; Guided
+              {t("home.tagline", "Simple, Respectful & Guided")}
             </span>
             <h2 className="font-serif-royal text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#2B120C]">
-              How Vivah Kar Lo Brings Families Together
+              {t("home.journey.title", "How Vivah Kar Lo Brings Families Together")}
             </h2>
             <p className="text-base sm:text-lg text-[#5C4740]">
-              Three thoughtful steps designed for serious, family-approved
-              alliances—without noise or endless scrolling.
+              {t("home.journey.subtitle", "Three thoughtful steps designed for serious, family-approved alliances—without noise or endless scrolling.")}
             </p>
           </div>
 
@@ -56,10 +68,10 @@ export const JourneyAndTrustSection: React.FC = () => {
                     </span>
                   </div>
                   <h3 className="font-serif-royal text-xl sm:text-2xl font-bold text-[#2B120C] mb-3">
-                    {item.title}
+                    {t(stepTitleKeys[idx] || "", item.title)}
                   </h3>
                   <p className="text-[15px] sm:text-base text-[#5C4740] leading-relaxed">
-                    {item.description}
+                    {t(stepDescKeys[idx] || "", item.description)}
                   </p>
                 </div>
               );

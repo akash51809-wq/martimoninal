@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface MembershipAndAppSectionProps {
   onSelectPlan: (planName: string) => void;
@@ -23,6 +24,7 @@ export const MembershipAndAppSection: React.FC<MembershipAndAppSectionProps> = (
   onSelectCommunityFilter,
   onOpenRegister,
 }) => {
+  const { t } = useLanguage();
   return (
     <>
       {/* Royal Membership Plans */}
@@ -37,11 +39,10 @@ export const MembershipAndAppSection: React.FC<MembershipAndAppSectionProps> = (
               Assisted &amp; VIP Plans
             </span>
             <h2 className="font-serif-royal text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#2B120C]">
-              Royal Membership Plans
+              {t("home.plans.title", "Royal Membership Plans")}
             </h2>
             <p className="text-base sm:text-lg text-[#5C4740]">
-              Start free with verified browsing. Upgrade anytime to unlock
-              direct contact numbers, Kundli reports, and dedicated advisors.
+              {t("home.plans.subtitle", "Start free with verified browsing. Upgrade anytime to unlock direct contact numbers, Kundli reports, and dedicated advisors.")}
             </p>
           </div>
 
@@ -220,7 +221,7 @@ export const MembershipAndAppSection: React.FC<MembershipAndAppSectionProps> = (
                 className="h-12 px-7 rounded-full bg-saffron-gradient hover:opacity-95 text-white font-semibold text-base shadow-saffron-sm"
               >
                 <Sparkles className="w-4 h-4 mr-2" />
-                Register Free Now
+                {t("home.nav.register", "Register Free Now")}
               </Button>
               <Link href="/mobile">
                 <Button

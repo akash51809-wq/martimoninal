@@ -22,6 +22,7 @@ import {
   useAuthAccount,
   resolvePostLoginDestination,
 } from "@/context/AuthAccountContext";
+import { useLanguage, type SupportedLanguageCode } from "@/context/LanguageContext";
 
 const DEFAULT_HERO_FILTERS: HeroSearchFilters = {
   lookingFor: "All",
@@ -40,7 +41,7 @@ export default function PremiumHomepage() {
     document.title = "Vivah Kar Lo - Find Your Perfect Match";
   }, []);
 
-  const [selectedLang, setSelectedLang] = useState("en");
+  const { lang, setLang, t } = useLanguage();
   const [heroFilters, setHeroFilters] =
     useState<HeroSearchFilters>(DEFAULT_HERO_FILTERS);
   const [likedIds, setLikedIds] = useState<string[]>(["1"]);
@@ -119,14 +120,8 @@ export default function PremiumHomepage() {
   return (
     <div className="min-h-screen bg-[#FFFDF9] text-[#2B120C] flex flex-col overflow-x-hidden">
       <WebsiteNavbar
-        selectedLang={selectedLang}
-        onSelectLang={(code) => {
-          setSelectedLang(code);
-          toast({
-            title: "Language Preference Updated",
-            description: "Multi-language translations will expand across Phase 1 screens.",
-          });
-        }}
+        selectedLang={lang}
+        onSelectLang={(code) => setLang(code as SupportedLanguageCode)}
         onOpenAuth={(tab) => openAuth(tab)}
       />
 

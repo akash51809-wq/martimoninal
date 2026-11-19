@@ -9,10 +9,11 @@ import {
   useAuthAccount,
   resolvePostLoginDestination,
 } from "@/context/AuthAccountContext";
+import { useLanguage, type SupportedLanguageCode } from "@/context/LanguageContext";
 
 interface WebsiteNavbarProps {
-  selectedLang: string;
-  onSelectLang: (code: string) => void;
+  selectedLang?: string;
+  onSelectLang?: (code: string) => void;
   onOpenAuth: (tab: "login" | "register") => void;
 }
 
@@ -24,6 +25,7 @@ export const WebsiteNavbar: React.FC<WebsiteNavbarProps> = ({
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { currentAccount, logout } = useAuthAccount();
+  const { lang, setLang, languages, t } = useLanguage();
   const accountDestination = currentAccount
     ? resolvePostLoginDestination(currentAccount)
     : "/login";
@@ -35,11 +37,11 @@ export const WebsiteNavbar: React.FC<WebsiteNavbarProps> = ({
   }, []);
 
   const navLinks = [
-    { label: "Discover Matches", href: "#discover" },
-    { label: "How It Works", href: "#journey" },
-    { label: "Success Stories", href: "#stories" },
-    { label: "Trust & Safety", href: "#trust" },
-    { label: "Membership", href: "#membership" },
+    { label: t("home.nav.discover", "Discover Matches"), href: "#discover" },
+    { label: t("home.nav.howItWorks", "How It Works"), href: "#journey" },
+    { label: t("home.nav.stories", "Success Stories"), href: "#stories" },
+    { label: t("home.nav.trust", "Trust & Safety"), href: "#trust" },
+    { label: t("home.nav.membership", "Membership"), href: "#membership" },
   ];
 
   const scrollToSection = (href: string) => {
@@ -118,13 +120,17 @@ export const WebsiteNavbar: React.FC<WebsiteNavbarProps> = ({
             <Globe className="w-4 h-4 text-[#EA580C]" />
             <select
               aria-label="Select Language"
-              value={selectedLang}
-              onChange={(e) => onSelectLang(e.target.value)}
+              value={lang}
+              onChange={(e) => {
+                const nextCode = e.target.value as SupportedLanguageCode;
+                setLang(nextCode);
+                if (onSelectLang) onSelectLang(nextCode);
+              }}
               className="bg-transparent focus:outline-none cursor-pointer pr-1 text-sm font-semibold"
             >
-              {MOCK_LANGUAGES.slice(0, 5).map((lang) => (
-                <option key={lang.code} value={lang.code}>
-                  {lang.label}
+              {languages.map((l) => (
+                <option key={l.code} value={l.code}>
+                  {l.nativeLabel || l.label}
                 </option>
               ))}
             </select>
@@ -157,7 +163,7 @@ export const WebsiteNavbar: React.FC<WebsiteNavbarProps> = ({
                 onClick={() => onOpenAuth("login")}
                 className="hidden sm:inline-flex text-[15px] font-semibold text-[#3B0A18] hover:text-[#EA580C] hover:bg-orange-50/80 rounded-full px-4 h-11"
               >
-                Sign In
+                {t("home.nav.login", "Sign In")}
               </Button>
 
               <Button
@@ -165,7 +171,7 @@ export const WebsiteNavbar: React.FC<WebsiteNavbarProps> = ({
                 className="bg-saffron-gradient hover:opacity-95 text-white font-semibold rounded-full px-5 sm:px-6 h-11 text-sm sm:text-[15px] shadow-saffron-sm transition-all duration-300 hover:scale-[1.02]"
               >
                 <Sparkles className="w-4 h-4 mr-1.5" />
-                Register Free
+                {t("home.nav.register", "Register Free")}
               </Button>
             </>
           )}
@@ -201,6 +207,30 @@ export const WebsiteNavbar: React.FC<WebsiteNavbarProps> = ({
                 ))}
 
                 <div className="my-3 border-t border-amber-100" />
+
+                {/* Mobile Language Selector */}
+                <div className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-amber-50/90 border border-amber-200/80 text-sm font-medium text-[#5C4033]">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-[#EA580C]" />
+                    <span>Language</span>
+                  </div>
+                  <select
+                    aria-label="Select Language Mobile"
+                    value={lang}
+                    onChange={(e) => {
+                      const nextCode = e.target.value as SupportedLanguageCode;
+                      setLang(nextCode);
+                      if (onSelectLang) onSelectLang(nextCode);
+                    }}
+                    className="bg-transparent focus:outline-none cursor-pointer text-sm font-semibold"
+                  >
+                    {languages.map((l) => (
+                      <option key={l.code} value={l.code}>
+                        {l.nativeLabel || l.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
                 <Link
                   href="/mobile"
