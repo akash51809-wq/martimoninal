@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { Heart, MapPin, Briefcase, Calendar, CheckCircle, Clock, User as UserIcon, Star, Home, GraduationCap, Heart as HeartIcon, Coffee, Wine, Leaf, Baby, Phone, Mail } from "lucide-react";
+import { Heart, MapPin, Briefcase, Calendar, CheckCircle, Clock, User as UserIcon, Star, Home, GraduationCap, Coffee, Wine, Leaf, Baby, Phone, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Profile, User } from "@/lib/firebaseAuth";
@@ -200,7 +200,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
           )}
           {(profile as any).bloodGroup && (
             <div className="flex items-center text-gray-600">
-              <HeartIcon className="mr-2 h-4 w-4" />
+              <Heart className="mr-2 h-4 w-4" />
               <span data-testid={`text-blood-group-${profile.id}`}>
                 {(profile as any).bloodGroup}
               </span>

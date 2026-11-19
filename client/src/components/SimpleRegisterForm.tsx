@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { registerWithEmail } from '@/lib/firebaseAuth';
-import { User, Mail, Lock, User as UserIcon, Phone, AlertCircle, Calendar, Loader2 } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, Phone, AlertCircle, Calendar, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface SimpleRegisterFormProps {

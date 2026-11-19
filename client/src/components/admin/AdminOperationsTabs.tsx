@@ -9,11 +9,26 @@ import {
   type PaymentTransaction,
   type PromoCoupon,
 } from "@/data/adminMockData";
-import { type SupportTicket, type UserFeedback } from "@shared/userActivityTypes";
+import {
+  type SupportTicket,
+  type UserFeedback,
+} from "@shared/userActivityTypes";
+import {
+  type MembershipPurchaseRequest,
+  type UserMembershipRecord,
+  type MembershipPlan,
+  OFFICIAL_MEMBERSHIP_PLANS,
+} from "@shared/membershipTypes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { AdminMessagingGatewayDesk } from "./AdminMessagingGatewayDesk";
 import {
@@ -36,6 +51,22 @@ import {
   SlidersHorizontal,
   Eye,
   CheckCheck,
+  Crown,
+  Copy,
+  UserCheck,
+  RotateCcw,
+  Filter,
+  Check,
+  X,
+  FileCheck,
+  Edit3,
+  Trash2,
+  Sparkles,
+  AlertCircle,
+  ArrowRight,
+  Tag,
+  Percent,
+  Layers,
 } from "lucide-react";
 
 export const AdminProfilesTab: React.FC<{
@@ -350,38 +381,7 @@ export const AdminProfilesTab: React.FC<{
   );
 };
 
-import {
-  type MembershipPurchaseRequest,
-  type UserMembershipRecord,
-  type MembershipPlan,
-  OFFICIAL_MEMBERSHIP_PLANS,
-} from "@shared/membershipTypes";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Crown,
-  Copy,
-  UserCheck,
-  RotateCcw,
-  Search,
-  Filter,
-  Check,
-  X,
-  FileCheck,
-  Edit3,
-  Trash2,
-  Eye,
-  Sparkles,
-  AlertCircle,
-  ArrowRight,
-  Tag,
-  Percent,
-  Layers,
-} from "lucide-react";
+
 
 export const AdminPaymentsTab: React.FC<{
   transactions: PaymentTransaction[];

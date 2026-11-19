@@ -25,7 +25,6 @@ import {
   Star,
   Home,
   GraduationCap,
-  Heart as HeartIcon,
   Coffee,
   Wine,
   Leaf,

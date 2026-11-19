@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { registerWithEmail, testFirebaseConnection } from '@/lib/firebaseAuth';
-import { User, Mail, Lock, User as UserIcon, Phone, AlertCircle } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, Phone, AlertCircle } from 'lucide-react';
 
 interface RegisterFormProps {
   onSuccess?: () => void;
