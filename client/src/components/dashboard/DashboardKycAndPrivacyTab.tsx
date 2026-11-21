@@ -24,6 +24,11 @@ import {
   CameraOff,
   CheckCheck,
   UserMinus,
+  Sliders,
+  Image as ImageIcon,
+  Zap,
+  MapPin,
+  Clock,
 } from "lucide-react";
 import { SelectiveProfilePrivacyModal } from "@/components/modals/SelectiveProfilePrivacyModal";
 import { LivenessAndWorkplaceBadgesPanel } from "@/components/security/LivenessAndWorkplaceBadgesPanel";
@@ -62,6 +67,12 @@ export const DashboardKycAndPrivacyTab: React.FC<DashboardKycAndPrivacyTabProps>
   const [empStatus, setEmpStatus] = useState<string>("Approved");
   const [submittingEmp, setSubmittingEmp] = useState<boolean>(false);
 
+  // Custom Profile & Photo Visibility Rules
+  const [profileVisibility, setProfileVisibility] = useState<"all" | "verified_only" | "same_state" | "criteria_only">("all");
+  const [visibilityMinAge, setVisibilityMinAge] = useState<number>(21);
+  const [visibilityMaxAge, setVisibilityMaxAge] = useState<number>(35);
+  const [visibilityMinEducation, setVisibilityMinEducation] = useState<string>("Any");
+
   // Privacy Settings State
   const [photoVisibility, setPhotoVisibility] = useState<"all" | "accepted_only" | "request_only">("all");
   const [contactVisibility, setContactVisibility] = useState<"accepted_vip_only" | "permission_only" | "hidden">("accepted_vip_only");
@@ -70,6 +81,33 @@ export const DashboardKycAndPrivacyTab: React.FC<DashboardKycAndPrivacyTabProps>
   const [screenshotProtectionEnabled, setScreenshotProtectionEnabled] = useState<boolean>(true);
   const [readReceiptsEnabled, setReadReceiptsEnabled] = useState<boolean>(true);
   const [stealthModeEnabled, setStealthModeEnabled] = useState<boolean>(false);
+
+  // Selective Field Locks (Unlocked only after mutual interest acceptance)
+  const [lockSalaryUntilAccepted, setLockSalaryUntilAccepted] = useState<boolean>(false);
+  const [lockFamilyDetailsUntilAccepted, setLockFamilyDetailsUntilAccepted] = useState<boolean>(false);
+  const [lockContactInfoUntilAccepted, setLockContactInfoUntilAccepted] = useState<boolean>(true);
+  const [lockKundliUntilAccepted, setLockKundliUntilAccepted] = useState<boolean>(false);
+
+  // Daily Anti-Bot Rate Limit Quota
+  const [dailyQuota, setDailyQuota] = useState<{
+    interestsUsed: number;
+    interestsRemaining: number;
+    interestsLimit: number;
+    messagesUsed: number;
+    messagesRemaining: number;
+    messagesLimit: number;
+    resetsInHours: number;
+  } | null>(null);
+
+  // EXIF GPS Photo Sanitizer State
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [photoSanitizedResult, setPhotoSanitizedResult] = useState<{
+    exifStripped: boolean;
+    hasGps: boolean;
+    message: string;
+    sanitizedUrl?: string;
+  } | null>(null);
+
   const [savingPrivacy, setSavingPrivacy] = useState<boolean>(false);
   const [isSelectiveModalOpen, setIsSelectiveModalOpen] = useState<boolean>(false);
 
@@ -78,17 +116,19 @@ export const DashboardKycAndPrivacyTab: React.FC<DashboardKycAndPrivacyTabProps>
     { id: "blk-1", blockedUserId: "usr-suspended", blockedUserName: "Vikram Malhotra" },
   ]);
 
-  // Load initial trust score & privacy settings
+  // Load initial trust score, privacy settings & daily quota
   useEffect(() => {
     let isMounted = true;
     async function loadData() {
       try {
-        const [trustRes, privacyRes] = await Promise.all([
+        const [trustRes, privacyRes, quotaRes] = await Promise.all([
           fetch(`/api/v1/security/trust-score/${userId}`),
           fetch(`/api/v1/security/privacy/settings/${userId}`),
+          fetch(`/api/v1/communication/daily-quota/${userId}`),
         ]);
         const trustData = await trustRes.json();
         const privacyData = await privacyRes.json();
+        const quotaData = await quotaRes.json();
 
         if (isMounted) {
           if (trustData.success && trustData.trust) {
@@ -98,6 +138,18 @@ export const DashboardKycAndPrivacyTab: React.FC<DashboardKycAndPrivacyTabProps>
             setIsIncomeVerified(trustData.trust.isIncomeVerified);
           }
           if (privacyData.success && privacyData.settings) {
+            if (privacyData.settings.profileVisibility) {
+              setProfileVisibility(privacyData.settings.profileVisibility);
+            }
+            if (privacyData.settings.visibilityMinAge) {
+              setVisibilityMinAge(privacyData.settings.visibilityMinAge);
+            }
+            if (privacyData.settings.visibilityMaxAge) {
+              setVisibilityMaxAge(privacyData.settings.visibilityMaxAge);
+            }
+            if (privacyData.settings.visibilityMinEducation) {
+              setVisibilityMinEducation(privacyData.settings.visibilityMinEducation);
+            }
             setPhotoVisibility(privacyData.settings.photoVisibility);
             setContactVisibility(privacyData.settings.contactVisibility);
             setWatermarkEnabled(privacyData.settings.watermarkEnabled);
@@ -111,6 +163,21 @@ export const DashboardKycAndPrivacyTab: React.FC<DashboardKycAndPrivacyTabProps>
             if (privacyData.settings.stealthModeEnabled !== undefined) {
               setStealthModeEnabled(privacyData.settings.stealthModeEnabled);
             }
+            if (privacyData.settings.lockSalaryUntilAccepted !== undefined) {
+              setLockSalaryUntilAccepted(privacyData.settings.lockSalaryUntilAccepted);
+            }
+            if (privacyData.settings.lockFamilyDetailsUntilAccepted !== undefined) {
+              setLockFamilyDetailsUntilAccepted(privacyData.settings.lockFamilyDetailsUntilAccepted);
+            }
+            if (privacyData.settings.lockContactInfoUntilAccepted !== undefined) {
+              setLockContactInfoUntilAccepted(privacyData.settings.lockContactInfoUntilAccepted);
+            }
+            if (privacyData.settings.lockKundliUntilAccepted !== undefined) {
+              setLockKundliUntilAccepted(privacyData.settings.lockKundliUntilAccepted);
+            }
+          }
+          if (quotaData.success && quotaData.quota) {
+            setDailyQuota(quotaData.quota);
           }
         }
       } catch (e) {
@@ -201,6 +268,10 @@ export const DashboardKycAndPrivacyTab: React.FC<DashboardKycAndPrivacyTabProps>
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          profileVisibility,
+          visibilityMinAge,
+          visibilityMaxAge,
+          visibilityMinEducation,
           photoVisibility,
           contactVisibility,
           watermarkEnabled,
@@ -208,6 +279,10 @@ export const DashboardKycAndPrivacyTab: React.FC<DashboardKycAndPrivacyTabProps>
           screenshotProtectionEnabled,
           readReceiptsEnabled,
           stealthModeEnabled,
+          lockSalaryUntilAccepted,
+          lockFamilyDetailsUntilAccepted,
+          lockContactInfoUntilAccepted,
+          lockKundliUntilAccepted,
         }),
       });
       const data = await res.json();
@@ -215,7 +290,7 @@ export const DashboardKycAndPrivacyTab: React.FC<DashboardKycAndPrivacyTabProps>
 
       toast({
         title: "Privacy Controls Updated",
-        description: "Your photo shield, screenshot guard, and contact protection settings have been saved.",
+        description: "Your custom visibility rules, selective field locks, and photo shield settings have been saved.",
       });
     } catch (err: any) {
       toast({
@@ -226,6 +301,54 @@ export const DashboardKycAndPrivacyTab: React.FC<DashboardKycAndPrivacyTabProps>
     } finally {
       setSavingPrivacy(false);
     }
+  };
+
+  const handleSanitizePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingPhoto(true);
+    setPhotoSanitizedResult(null);
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const photoDataUri = reader.result as string;
+        const res = await fetch("/api/v1/security/photo/upload-sanitized", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            photoDataUri,
+            photoLabel: file.name,
+          }),
+        });
+
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+
+        setPhotoSanitizedResult({
+          exifStripped: true,
+          hasGps: data.hasEmbeddedGps,
+          message: data.message,
+          sanitizedUrl: data.sanitizedPhotoUrl,
+        });
+
+        toast({
+          title: "EXIF Stripped & Protected",
+          description: "All GPS coordinates and camera metadata stripped permanently for privacy.",
+        });
+      } catch (err: any) {
+        toast({
+          title: "Photo Processing Failed",
+          description: err.message || "Could not sanitize photo.",
+          variant: "destructive",
+        });
+      } finally {
+        setUploadingPhoto(false);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleUnblock = async (blockedUserId: string) => {
@@ -276,6 +399,38 @@ export const DashboardKycAndPrivacyTab: React.FC<DashboardKycAndPrivacyTabProps>
             <p className="text-[11px] text-[#5C4740] mt-0.5">
               {trustScore >= 80 ? "Certified Authentic Alliance" : "Upload Govt ID to reach 100%"}
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Anti-Bot & Daily Usage Shield Banner */}
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border border-amber-300/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-saffron-gradient text-white flex items-center justify-center shrink-0 shadow-saffron-sm">
+            <Zap className="w-5 h-5" />
+          </div>
+          <div>
+            <span className="text-xs font-bold text-[#3B0A18] flex items-center gap-1.5 uppercase tracking-wide">
+              <span>Anti-Bot &amp; Anti-Spam Shield Active</span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold">Fair Usage Protected</span>
+            </span>
+            <span className="text-xs text-[#5C4740] block mt-0.5">
+              Protects members against automated bot blasts and mass scrapers: daily interests capped at {dailyQuota?.interestsLimit || 15} per 24 hours.
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="px-3.5 py-1.5 rounded-xl bg-white border border-amber-200 text-center shadow-xs">
+            <span className="text-[10px] uppercase font-bold text-[#8C6D62] block">Interests Left</span>
+            <span className="text-sm font-black text-[#EA580C]">
+              {dailyQuota ? `${dailyQuota.interestsRemaining} / ${dailyQuota.interestsLimit}` : "15 / 15"}
+            </span>
+          </div>
+          <div className="px-3.5 py-1.5 rounded-xl bg-white border border-amber-200 text-center shadow-xs">
+            <span className="text-[10px] uppercase font-bold text-[#8C6D62] block">Messages Left</span>
+            <span className="text-sm font-black text-emerald-700">
+              {dailyQuota ? `${dailyQuota.messagesRemaining} / ${dailyQuota.messagesLimit}` : "30 / 30"}
+            </span>
           </div>
         </div>
       </div>
@@ -448,16 +603,66 @@ export const DashboardKycAndPrivacyTab: React.FC<DashboardKycAndPrivacyTabProps>
           </form>
         </div>
 
-        {/* Section 3: Photo Shield & Privacy Options */}
+        {/* Section 3: Custom Visibility Rules & Photo Shield */}
         <div className="bg-white rounded-2xl border border-amber-200/90 p-5 sm:p-6 shadow-sm space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-amber-100">
-            <Lock className="w-5 h-5 text-[#EA580C]" />
+            <Sliders className="w-5 h-5 text-[#EA580C]" />
             <h3 className="font-serif-royal text-lg font-bold text-[#3B0A18]">
-              3. Photo Shield &amp; Visibility Controls
+              3. Custom Profile &amp; Photo Visibility Rules
             </h3>
           </div>
 
           <div className="space-y-4">
+            {/* Rule 1: Who can discover my profile in search */}
+            <div>
+              <Label className="text-xs font-semibold text-[#3B0A18]">
+                Who Can Discover &amp; View My Profile:
+              </Label>
+              <select
+                value={profileVisibility}
+                onChange={(e) => setProfileVisibility(e.target.value as any)}
+                className="mt-1 w-full h-11 rounded-xl border border-amber-200 bg-white px-3 text-xs sm:text-sm font-medium"
+              >
+                <option value="all">All Verified Matrimonial Members (Recommended)</option>
+                <option value="verified_only">Only 100% KYC &amp; Selfie Verified Members</option>
+                <option value="same_state">Same City / State Profiles Only</option>
+                <option value="criteria_only">Strict Filter Matchers (Specific Age &amp; Education Range)</option>
+              </select>
+            </div>
+
+            {/* Sub-inputs when criteria_only is selected */}
+            {profileVisibility === "criteria_only" && (
+              <div className="p-3.5 rounded-xl bg-orange-50/70 border border-orange-200 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div>
+                  <Label className="text-[11px] font-bold text-[#3B0A18]">
+                    Minimum Matching Age:
+                  </Label>
+                  <Input
+                    type="number"
+                    min={18}
+                    max={70}
+                    value={visibilityMinAge}
+                    onChange={(e) => setVisibilityMinAge(parseInt(e.target.value) || 21)}
+                    className="mt-1 h-9 rounded-lg border-amber-300 text-xs bg-white"
+                  />
+                </div>
+                <div>
+                  <Label className="text-[11px] font-bold text-[#3B0A18]">
+                    Maximum Matching Age:
+                  </Label>
+                  <Input
+                    type="number"
+                    min={18}
+                    max={70}
+                    value={visibilityMaxAge}
+                    onChange={(e) => setVisibilityMaxAge(parseInt(e.target.value) || 35)}
+                    className="mt-1 h-9 rounded-lg border-amber-300 text-xs bg-white"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Photo Visibility */}
             <div>
               <Label className="text-xs font-semibold text-[#3B0A18]">
                 Photo Visibility Permission:
@@ -465,9 +670,10 @@ export const DashboardKycAndPrivacyTab: React.FC<DashboardKycAndPrivacyTabProps>
               <select
                 value={photoVisibility}
                 onChange={(e) => setPhotoVisibility(e.target.value as any)}
-                className="mt-1 w-full h-11 rounded-xl border border-amber-200 bg-white px-3 text-xs sm:text-sm"
+                className="mt-1 w-full h-11 rounded-xl border border-amber-200 bg-white px-3 text-xs sm:text-sm font-medium"
               >
                 <option value="all">Visible to All Registered Members</option>
+                <option value="verified_only">Visible Only to 100% Govt ID Verified Members</option>
                 <option value="accepted_only">
                   Visible Only to Accepted Interests (Others see blurred photo)
                 </option>
@@ -484,7 +690,7 @@ export const DashboardKycAndPrivacyTab: React.FC<DashboardKycAndPrivacyTabProps>
                   Brand Watermark &amp; Anti-Download Shield
                 </span>
                 <span className="text-[11px] text-[#5C4740]">
-                  Overlays diagonal &ldquo;Vivah Kar Lo • Confidential&rdquo; seal and disables right-click/screenshotting
+                  Overlays diagonal &ldquo;Vivah Kar Lo • Confidential • Viewer ID&rdquo; watermark and disables right-click
                 </span>
               </div>
               <Switch
@@ -500,11 +706,11 @@ export const DashboardKycAndPrivacyTab: React.FC<DashboardKycAndPrivacyTabProps>
                 <div className="flex items-center gap-1.5">
                   <CameraOff className="w-3.5 h-3.5 text-[#EA580C]" />
                   <span className="text-xs font-bold text-[#2B120C]">
-                    Screenshot &amp; Screen Grab Guard
+                    Screenshot &amp; Screen Grab Guard (FLAG_SECURE)
                   </span>
                 </div>
                 <span className="text-[11px] text-[#5C4740] block mt-0.5">
-                  Blocks PrintScreen keyboard actions, obscures photos on window blur, and hides assets during screen recording.
+                  Blocks PrintScreen keyboard actions, obscures photos on window blur, and triggers mobile WebView FLAG_SECURE.
                 </span>
               </div>
               <Switch
@@ -553,13 +759,160 @@ export const DashboardKycAndPrivacyTab: React.FC<DashboardKycAndPrivacyTabProps>
           </div>
         </div>
 
-        {/* Section 4: Contact Privacy, Stealth Mode & Blocked Accounts */}
+        {/* Section 4: Selective Field Lock (Locked until Interest Accepted) */}
+        <div className="bg-white rounded-2xl border border-amber-200/90 p-5 sm:p-6 shadow-sm space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-amber-100">
+            <Lock className="w-5 h-5 text-[#EA580C]" />
+            <h3 className="font-serif-royal text-lg font-bold text-[#3B0A18]">
+              4. Selective Field Lock (Hide Specific Details)
+            </h3>
+          </div>
+
+          <p className="text-xs text-[#5C4740]">
+            Keep sensitive financial, astrological, or family information locked from public discovery. Selected fields unlock automatically once you accept an interest.
+          </p>
+
+          <div className="space-y-3 mt-3">
+            {/* Lock Salary */}
+            <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200 flex items-center justify-between gap-3">
+              <div>
+                <span className="block text-xs font-bold text-[#2B120C]">
+                  Lock Annual Income / Salary
+                </span>
+                <span className="text-[11px] text-[#5C4740]">
+                  Hides compensation figure from general browsing; unlocks after mutual interest
+                </span>
+              </div>
+              <Switch
+                checked={lockSalaryUntilAccepted}
+                onCheckedChange={setLockSalaryUntilAccepted}
+                className="data-[state=checked]:bg-[#EA580C]"
+              />
+            </div>
+
+            {/* Lock Family Background */}
+            <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200 flex items-center justify-between gap-3">
+              <div>
+                <span className="block text-xs font-bold text-[#2B120C]">
+                  Lock Detailed Family Background
+                </span>
+                <span className="text-[11px] text-[#5C4740]">
+                  Hides parents&apos; occupation and native place from public view until interest is accepted
+                </span>
+              </div>
+              <Switch
+                checked={lockFamilyDetailsUntilAccepted}
+                onCheckedChange={setLockFamilyDetailsUntilAccepted}
+                className="data-[state=checked]:bg-[#EA580C]"
+              />
+            </div>
+
+            {/* Lock Contact Numbers */}
+            <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200 flex items-center justify-between gap-3">
+              <div>
+                <span className="block text-xs font-bold text-[#2B120C]">
+                  Lock Direct Mobile &amp; WhatsApp
+                </span>
+                <span className="text-[11px] text-[#5C4740]">
+                  Enforces strict mutual approval before phone numbers or WhatsApp are revealed
+                </span>
+              </div>
+              <Switch
+                checked={lockContactInfoUntilAccepted}
+                onCheckedChange={setLockContactInfoUntilAccepted}
+                className="data-[state=checked]:bg-[#EA580C]"
+              />
+            </div>
+
+            {/* Lock Kundli Chart */}
+            <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200 flex items-center justify-between gap-3">
+              <div>
+                <span className="block text-xs font-bold text-[#2B120C]">
+                  Lock Astrological Birth Chart (Kundli)
+                </span>
+                <span className="text-[11px] text-[#5C4740]">
+                  Shows only 36-Guna score; detailed planetary houses unlock only upon mutual connect
+                </span>
+              </div>
+              <Switch
+                checked={lockKundliUntilAccepted}
+                onCheckedChange={setLockKundliUntilAccepted}
+                className="data-[state=checked]:bg-[#EA580C]"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Section 5: Photo Upload & EXIF GPS Sanitizer (Sharp Powered) */}
+        <div className="bg-white rounded-2xl border border-amber-200/90 p-5 sm:p-6 shadow-sm space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-amber-100">
+            <ImageIcon className="w-5 h-5 text-[#EA580C]" />
+            <h3 className="font-serif-royal text-lg font-bold text-[#3B0A18]">
+              5. EXIF GPS Sanitizer &amp; Safe Photo Upload
+            </h3>
+          </div>
+
+          <p className="text-xs text-[#5C4740]">
+            Smartphone photos contain embedded GPS coordinates pointing directly to your home. Our Sharp engine automatically purges all EXIF geolocation metadata before publishing.
+          </p>
+
+          <div className="p-4 rounded-xl border-2 border-dashed border-amber-300 bg-amber-50/40 text-center space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-orange-100 text-[#EA580C] mx-auto flex items-center justify-center">
+              <Upload className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-[#3B0A18]">
+                Upload Photo with Auto EXIF Sanitization
+              </p>
+              <p className="text-[11px] text-[#5C4740] mt-0.5">
+                Sharp permanently strips camera EXIF &amp; GPS tags while securely storing an admin audit trace
+              </p>
+            </div>
+            <label className="inline-flex">
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleSanitizePhotoUpload}
+                disabled={uploadingPhoto}
+                className="hidden"
+                id="photo-sanitizer-input"
+              />
+              <Button
+                type="button"
+                disabled={uploadingPhoto}
+                onClick={() => document.getElementById("photo-sanitizer-input")?.click()}
+                className="h-9 px-4 rounded-xl bg-saffron-gradient text-white text-xs font-semibold shadow-saffron-sm"
+              >
+                {uploadingPhoto ? "Sanitizing EXIF..." : "Select Photo to Protect"}
+              </Button>
+            </label>
+          </div>
+
+          {photoSanitizedResult && (
+            <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 space-y-1 animate-in fade-in">
+              <div className="flex items-center gap-1.5 font-bold text-emerald-800">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <span>EXIF GPS Coordinates Successfully Purged</span>
+              </div>
+              <p className="text-[11px] text-emerald-700">
+                {photoSanitizedResult.message}
+              </p>
+              {photoSanitizedResult.hasGps && (
+                <span className="inline-block mt-1 px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                  📍 Home GPS tags detected and stripped • Admin Audit Logged
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Section 6: Contact Privacy, Stealth Mode & Blocked Accounts */}
         <div className="bg-white rounded-2xl border border-amber-200/90 p-5 sm:p-6 shadow-sm space-y-4 flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-2 pb-3 border-b border-amber-100">
               <EyeOff className="w-5 h-5 text-[#EA580C]" />
               <h3 className="font-serif-royal text-lg font-bold text-[#3B0A18]">
-                4. Contact Privacy, Stealth &amp; Blocked List
+                6. Contact Privacy, Stealth &amp; Blocked List
               </h3>
             </div>
 
@@ -571,7 +924,7 @@ export const DashboardKycAndPrivacyTab: React.FC<DashboardKycAndPrivacyTabProps>
                 <select
                   value={contactVisibility}
                   onChange={(e) => setContactVisibility(e.target.value as any)}
-                  className="mt-1 w-full h-11 rounded-xl border border-amber-200 bg-white px-3 text-xs sm:text-sm"
+                  className="mt-1 w-full h-11 rounded-xl border border-amber-200 bg-white px-3 text-xs sm:text-sm font-medium"
                 >
                   <option value="accepted_vip_only">
                     Visible Only to Accepted Interests with VIP Membership
@@ -591,11 +944,11 @@ export const DashboardKycAndPrivacyTab: React.FC<DashboardKycAndPrivacyTabProps>
                   <div className="flex items-center gap-1.5">
                     <UserMinus className="w-3.5 h-3.5 text-rose-600" />
                     <span className="text-xs font-bold text-[#2B120C]">
-                      Hide Profile from Specific Users
+                      Hide Profile from Relatives &amp; Specific Users
                     </span>
                   </div>
                   <span className="text-[11px] text-[#5C4740] block mt-0.5">
-                    Stealthily exclude relatives, colleagues, or acquaintances without blocking them.
+                    Stealthily exclude relatives, colleagues, or acquaintances without blocking them. They will never see your profile.
                   </span>
                 </div>
                 <Button

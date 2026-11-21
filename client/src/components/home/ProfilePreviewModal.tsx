@@ -42,6 +42,7 @@ import {
 interface ProfilePreviewModalProps {
   profile: ProfileData | null;
   isLiked: boolean;
+  isInterestAccepted?: boolean;
   onClose: () => void;
   onSendInterest: (profile: ProfileData, message?: string) => void;
   onUnlockContact: () => void;
@@ -52,6 +53,7 @@ interface ProfilePreviewModalProps {
 export const ProfilePreviewModal: React.FC<ProfilePreviewModalProps> = ({
   profile,
   isLiked,
+  isInterestAccepted = false,
   onClose,
   onSendInterest,
   onUnlockContact,
@@ -234,9 +236,15 @@ export const ProfilePreviewModal: React.FC<ProfilePreviewModalProps> = ({
                 <IndianRupee className="w-3.5 h-3.5 text-[#EA580C]" />
                 Annual Income
               </p>
-              <p className="text-sm font-semibold text-[#2B120C] mt-1">
-                {profile.income}
-              </p>
+              {(profile as any).lockSalaryUntilAccepted && !isInterestAccepted ? (
+                <p className="text-xs font-bold text-amber-700 flex items-center gap-1 mt-1">
+                  <Lock className="w-3 h-3 text-[#EA580C]" /> Locked (Mutual Interest required)
+                </p>
+              ) : (
+                <p className="text-sm font-semibold text-[#2B120C] mt-1">
+                  {profile.income}
+                </p>
+              )}
             </div>
           </div>
 
@@ -255,18 +263,27 @@ export const ProfilePreviewModal: React.FC<ProfilePreviewModalProps> = ({
                 <Users className="w-4 h-4" />
                 Family Background
               </h4>
-              <p className="text-sm text-[#4E342E]">
-                <strong>Father:</strong> {profile.family.fatherOccupation}
-              </p>
-              <p className="text-sm text-[#4E342E]">
-                <strong>Mother:</strong> {profile.family.motherOccupation}
-              </p>
-              <p className="text-sm text-[#4E342E]">
-                <strong>Values:</strong> {profile.family.familyType} • {profile.family.familyValues}
-              </p>
-              <p className="text-sm text-[#4E342E]">
-                <strong>Native:</strong> {profile.family.nativePlace}
-              </p>
+              {(profile as any).lockFamilyDetailsUntilAccepted && !isInterestAccepted ? (
+                <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200 text-xs text-[#5C4740] flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-[#EA580C] shrink-0" />
+                  <span>Family details locked by member. Unlocked automatically once mutual interest is accepted.</span>
+                </div>
+              ) : (
+                <>
+                  <p className="text-sm text-[#4E342E]">
+                    <strong>Father:</strong> {profile.family.fatherOccupation}
+                  </p>
+                  <p className="text-sm text-[#4E342E]">
+                    <strong>Mother:</strong> {profile.family.motherOccupation}
+                  </p>
+                  <p className="text-sm text-[#4E342E]">
+                    <strong>Values:</strong> {profile.family.familyType} • {profile.family.familyValues}
+                  </p>
+                  <p className="text-sm text-[#4E342E]">
+                    <strong>Native:</strong> {profile.family.nativePlace}
+                  </p>
+                </>
+              )}
             </div>
 
             <div className="p-4 rounded-2xl bg-white border border-amber-100 shadow-sm space-y-2">

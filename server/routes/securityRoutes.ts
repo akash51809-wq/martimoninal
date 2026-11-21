@@ -3,6 +3,7 @@ import { z } from "zod";
 import { dbService } from "../databaseService";
 import { emailGatewayService } from "../services/emailGatewayService";
 import { requireAdminAuth } from "../middleware/authMiddleware";
+import { photoSanitizerService } from "../services/photoSanitizerService";
 
 export const securityRouter = Router();
 
@@ -40,13 +41,22 @@ const employmentReviewSchema = z.object({
 });
 
 const updatePrivacySchema = z.object({
-  photoVisibility: z.enum(["all", "accepted_only", "request_only"]).optional(),
+  profileVisibility: z.enum(["all", "verified_only", "same_state", "criteria_only"]).optional(),
+  visibilityMinAge: z.number().optional(),
+  visibilityMaxAge: z.number().optional(),
+  visibilityMinEducation: z.string().optional(),
+  visibilityLocation: z.string().optional(),
+  photoVisibility: z.enum(["all", "verified_only", "accepted_only", "request_only"]).optional(),
   contactVisibility: z.enum(["accepted_vip_only", "permission_only", "hidden"]).optional(),
   showOnlineStatus: z.boolean().optional(),
   watermarkEnabled: z.boolean().optional(),
   screenshotProtectionEnabled: z.boolean().optional(),
   readReceiptsEnabled: z.boolean().optional(),
   stealthModeEnabled: z.boolean().optional(),
+  lockSalaryUntilAccepted: z.boolean().optional(),
+  lockFamilyDetailsUntilAccepted: z.boolean().optional(),
+  lockContactInfoUntilAccepted: z.boolean().optional(),
+  lockKundliUntilAccepted: z.boolean().optional(),
 });
 
 const hideProfileSchema = z.object({
@@ -293,6 +303,77 @@ securityRouter.post("/unhide-from", async (req: Request, res: Response) => {
     }
     const success = await dbService.unhideProfileFromUser(userId, targetUserId);
     res.json({ success, message: "Profile visibility restored for this user." });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ============================================================================
+// BLOCK & HIDE LIST UNIFIED SUMMARY (Relative Invisibility + Hard Block)
+// ============================================================================
+securityRouter.get("/block-hide/summary/:userId", (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const blockedUsers = dbService.getBlockedUsers(userId);
+    const hiddenProfiles = dbService.getHiddenProfiles(userId);
+    res.json({
+      success: true,
+      blockedUsers,
+      hiddenProfiles,
+      totalBlocked: blockedUsers.length,
+      totalHidden: hiddenProfiles.length,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ============================================================================
+// EXIF GPS SANITIZER & ADMIN GEO-AUDIT VAULT (Sharp Auto-Purge)
+// ============================================================================
+securityRouter.post("/photo/upload-sanitized", async (req: Request, res: Response) => {
+  try {
+    const { userId = "usr-unknown", photoDataUri, photoLabel = "Profile Photo" } = req.body || {};
+    if (!photoDataUri) {
+      return res.status(400).json({ success: false, error: "Photo data URI is required." });
+    }
+
+    const { sanitizedDataUri, geoAudit } = await photoSanitizerService.sanitizeAndStripExif(photoDataUri);
+
+    // Save Geo-Audit record strictly for Admin inspection
+    const auditRecord = dbService.recordPhotoGeoAudit({
+      userId,
+      photoUrl: sanitizedDataUri.slice(0, 80) + "...",
+      hasGps: geoAudit.hasGps,
+      latitude: geoAudit.latitude,
+      longitude: geoAudit.longitude,
+      altitude: geoAudit.altitude,
+      deviceMake: geoAudit.deviceMake,
+      deviceModel: geoAudit.deviceModel,
+      capturedAt: geoAudit.capturedAt,
+      sanitizedAt: geoAudit.sanitizedAt,
+      fileSizeBytes: geoAudit.fileSizeBytes,
+    });
+
+    res.json({
+      success: true,
+      sanitizedPhotoUrl: sanitizedDataUri,
+      exifStripped: true,
+      geoAuditLogged: true,
+      hasEmbeddedGps: geoAudit.hasGps,
+      message: "Photo processed successfully. All home/device GPS EXIF tags permanently stripped for user privacy.",
+      auditId: auditRecord.id,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message || "Failed to sanitize photo." });
+  }
+});
+
+securityRouter.get("/photo/geo-audits", requireAdminAuth, (req: Request, res: Response) => {
+  try {
+    const { userId } = req.query;
+    const audits = dbService.getPhotoGeoAudits(typeof userId === "string" ? userId : undefined);
+    res.json({ success: true, audits, totalAudits: audits.length });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message });
   }

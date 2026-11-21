@@ -401,14 +401,38 @@ export interface EmploymentProofRow {
 
 export interface UserPrivacySettingsRow {
   userId: string;
-  photoVisibility: "all" | "accepted_only" | "request_only";
+  profileVisibility: "all" | "verified_only" | "same_state" | "criteria_only";
+  visibilityMinAge?: number;
+  visibilityMaxAge?: number;
+  visibilityMinEducation?: string;
+  visibilityLocation?: string;
+  photoVisibility: "all" | "verified_only" | "accepted_only" | "request_only";
   contactVisibility: "accepted_vip_only" | "permission_only" | "hidden";
   showOnlineStatus: boolean;
   watermarkEnabled: boolean;
   screenshotProtectionEnabled: boolean;
   readReceiptsEnabled: boolean;
   stealthModeEnabled: boolean;
+  lockSalaryUntilAccepted: boolean;
+  lockFamilyDetailsUntilAccepted: boolean;
+  lockContactInfoUntilAccepted: boolean;
+  lockKundliUntilAccepted: boolean;
   updatedAt: string;
+}
+
+export interface PhotoGeoAuditRow {
+  id: string;
+  userId: string;
+  photoUrl: string;
+  hasGps: boolean;
+  latitude?: number;
+  longitude?: number;
+  altitude?: number;
+  deviceMake?: string;
+  deviceModel?: string;
+  capturedAt?: string;
+  sanitizedAt: string;
+  fileSizeBytes: number;
 }
 
 export interface BlockedUserRow {
@@ -557,6 +581,7 @@ export interface DatabaseState {
   whatsapp_settings: WhatsAppNotificationSettingsRow[];
   whatsapp_logs: WhatsAppNotificationLogRow[];
   hidden_profiles: HiddenProfileRow[];
+  photo_geo_audits: PhotoGeoAuditRow[];
   personality_profiles: PersonalityProfile[];
   smart_ranking_weights: SmartRankingWeights;
 }
@@ -1595,6 +1620,36 @@ function createDefaultSeedData(): DatabaseState {
 
   const smart_ranking_weights: SmartRankingWeights = { ...DEFAULT_RANKING_WEIGHTS };
   const hidden_profiles: HiddenProfileRow[] = [];
+  const photo_geo_audits: PhotoGeoAuditRow[] = [
+    {
+      id: "geo-demo-001",
+      userId: "usr-demo-priya",
+      photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500",
+      hasGps: true,
+      latitude: 28.613939,
+      longitude: 77.209021,
+      altitude: 216,
+      deviceMake: "Apple",
+      deviceModel: "iPhone 15 Pro",
+      capturedAt: "2026-11-18T10:14:22Z",
+      sanitizedAt: "2026-11-18T10:15:00Z",
+      fileSizeBytes: 2450890,
+    },
+    {
+      id: "geo-demo-002",
+      userId: "usr-demo-rahul",
+      photoUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500",
+      hasGps: true,
+      latitude: 19.076090,
+      longitude: 72.877426,
+      altitude: 14,
+      deviceMake: "Samsung",
+      deviceModel: "Galaxy S24 Ultra",
+      capturedAt: "2026-11-19T08:30:11Z",
+      sanitizedAt: "2026-11-19T08:31:05Z",
+      fileSizeBytes: 3120400,
+    },
+  ];
 
   return {
     users,
@@ -1625,6 +1680,7 @@ function createDefaultSeedData(): DatabaseState {
     whatsapp_settings,
     whatsapp_logs,
     hidden_profiles,
+    photo_geo_audits,
     personality_profiles,
     smart_ranking_weights,
   };
@@ -2569,6 +2625,13 @@ class DatabaseService {
     return { profile, completion: 100 };
   }
 
+  public getAccount(userId: string): { user: UserRow | undefined; role: UserRoleRow | undefined; membership: UserMembershipRow } {
+    const user = (this.state.users || []).find((u) => u.id === userId);
+    const role = (this.state.user_roles || []).find((r) => r.userId === userId);
+    const membership = this.getUserMembership(userId);
+    return { user, role, membership };
+  }
+
   public getUserDossier(userId: string): any | null {
     const user = this.state.users.find((u) => u.id === userId);
     if (!user) return null;
@@ -3283,6 +3346,11 @@ class DatabaseService {
     if (!s) {
       s = {
         userId,
+        profileVisibility: "all",
+        visibilityMinAge: 18,
+        visibilityMaxAge: 70,
+        visibilityMinEducation: "Any",
+        visibilityLocation: "All",
         photoVisibility: "all",
         contactVisibility: "accepted_vip_only",
         showOnlineStatus: true,
@@ -3290,6 +3358,10 @@ class DatabaseService {
         screenshotProtectionEnabled: true,
         readReceiptsEnabled: true,
         stealthModeEnabled: false,
+        lockSalaryUntilAccepted: false,
+        lockFamilyDetailsUntilAccepted: false,
+        lockContactInfoUntilAccepted: true,
+        lockKundliUntilAccepted: false,
         updatedAt: new Date().toISOString(),
       };
       if (!this.state.user_privacy_settings) this.state.user_privacy_settings = [];
@@ -3395,10 +3467,70 @@ class DatabaseService {
 
   public isProfileHiddenFromViewer(profileUserId: string, viewerUserId: string): boolean {
     if (!profileUserId || !viewerUserId || profileUserId === viewerUserId) return false;
-    if (!this.state.hidden_profiles) return false;
-    return this.state.hidden_profiles.some(
-      (h) => h.userId === profileUserId && h.targetUserId === viewerUserId
-    );
+
+    // 1. Check selective stealth hidden profiles list (relative / acquaintance exclusion)
+    if (this.state.hidden_profiles) {
+      const isHidden = this.state.hidden_profiles.some(
+        (h) => h.userId === profileUserId && (h.targetUserId === viewerUserId || h.targetProfileId === viewerUserId)
+      );
+      if (isHidden) return true;
+    }
+
+    // 2. Check hard block list (mutual invisibility)
+    if (this.state.blocked_users) {
+      const isBlocked = this.state.blocked_users.some(
+        (b) =>
+          (b.blockerUserId === profileUserId && b.blockedUserId === viewerUserId) ||
+          (b.blockerUserId === viewerUserId && b.blockedUserId === profileUserId)
+      );
+      if (isBlocked) return true;
+    }
+
+    // 3. Check custom profile visibility rules
+    const privacy = this.getUserPrivacySettings(profileUserId);
+    if (privacy.profileVisibility && privacy.profileVisibility !== "all") {
+      const viewerAccount = this.getAccount(viewerUserId);
+      const targetAccount = this.getAccount(profileUserId);
+
+      if (privacy.profileVisibility === "verified_only") {
+        const isViewerVerified = viewerAccount?.verification?.mobileVerified && viewerAccount?.verification?.emailVerified;
+        if (!isViewerVerified) return true;
+      } else if (privacy.profileVisibility === "same_state") {
+        const viewerState = viewerAccount?.profile?.workState || "";
+        const targetState = targetAccount?.profile?.workState || "";
+        if (viewerState && targetState && viewerState.toLowerCase() !== targetState.toLowerCase()) {
+          return true;
+        }
+      } else if (privacy.profileVisibility === "criteria_only") {
+        if (viewerAccount?.user?.dob) {
+          const birthYear = new Date(viewerAccount.user.dob).getFullYear();
+          const viewerAge = new Date().getFullYear() - birthYear;
+          if (privacy.visibilityMinAge && viewerAge < privacy.visibilityMinAge) return true;
+          if (privacy.visibilityMaxAge && viewerAge > privacy.visibilityMaxAge) return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  public recordPhotoGeoAudit(data: Omit<PhotoGeoAuditRow, "id">): PhotoGeoAuditRow {
+    if (!this.state.photo_geo_audits) this.state.photo_geo_audits = [];
+    const record: PhotoGeoAuditRow = {
+      id: `geo-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      ...data,
+    };
+    this.state.photo_geo_audits.unshift(record);
+    this.saveSnapshot();
+    return record;
+  }
+
+  public getPhotoGeoAudits(userId?: string): PhotoGeoAuditRow[] {
+    if (!this.state.photo_geo_audits) return [];
+    if (userId) {
+      return this.state.photo_geo_audits.filter((g) => g.userId === userId);
+    }
+    return this.state.photo_geo_audits;
   }
 
   public async submitModerationReport(data: {

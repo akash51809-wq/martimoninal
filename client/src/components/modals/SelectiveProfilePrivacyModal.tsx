@@ -20,14 +20,17 @@ interface SelectiveProfilePrivacyModalProps {
   isOpen: boolean;
   onClose: () => void;
   userId?: string;
+  currentUserId?: string;
 }
 
 export const SelectiveProfilePrivacyModal: React.FC<SelectiveProfilePrivacyModalProps> = ({
   isOpen,
   onClose,
-  userId = "usr-active-complete",
+  userId: propUserId,
+  currentUserId,
 }) => {
   const { toast } = useToast();
+  const effectiveUserId = propUserId || currentUserId || "usr-active-complete";
   const [hiddenList, setHiddenList] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState<boolean>(false);
@@ -40,7 +43,7 @@ export const SelectiveProfilePrivacyModal: React.FC<SelectiveProfilePrivacyModal
   const fetchHiddenProfiles = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/v1/security/hidden-from/${encodeURIComponent(userId)}`);
+      const res = await fetch(`/api/v1/security/hidden-from/${encodeURIComponent(effectiveUserId)}`);
       const data = await res.json();
       if (data.success && data.hiddenProfiles) {
         setHiddenList(data.hiddenProfiles);
@@ -56,7 +59,7 @@ export const SelectiveProfilePrivacyModal: React.FC<SelectiveProfilePrivacyModal
     if (isOpen) {
       fetchHiddenProfiles();
     }
-  }, [isOpen, userId]);
+  }, [isOpen, effectiveUserId]);
 
   if (!isOpen) return null;
 
@@ -77,7 +80,7 @@ export const SelectiveProfilePrivacyModal: React.FC<SelectiveProfilePrivacyModal
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId,
+          userId: effectiveUserId,
           targetUserId: targetIdInput.trim(),
           targetUserName: targetNameInput.trim() || undefined,
           targetProfileId: targetIdInput.trim(),
@@ -113,7 +116,7 @@ export const SelectiveProfilePrivacyModal: React.FC<SelectiveProfilePrivacyModal
       const res = await fetch("/api/v1/security/unhide-from", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, targetUserId }),
+        body: JSON.stringify({ userId: effectiveUserId, targetUserId }),
       });
       const data = await res.json();
       if (!data.success) {

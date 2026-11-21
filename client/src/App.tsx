@@ -4,6 +4,7 @@ import { Route, Switch } from "wouter";
 import { AuthAccountProvider } from "@/context/AuthAccountContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { Toaster } from "@/components/ui/toaster";
+import { GlobalSecurityShield } from "@/components/security/GlobalSecurityShield";
 import PremiumHomepage from "@/pages/PremiumHomepage";
 
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
@@ -83,6 +84,7 @@ export default function App() {
               <Route component={PremiumHomepage} />
             </Switch>
           </Suspense>
+          <GlobalSecurityShield />
           <Toaster />
         </AuthAccountProvider>
       </LanguageProvider>

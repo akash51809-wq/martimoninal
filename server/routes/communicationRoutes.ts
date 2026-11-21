@@ -3,6 +3,7 @@ import { z } from "zod";
 import { dbService } from "../databaseService";
 import { analyzeMessageForDlp } from "../utils/dataLeakPrevention";
 import { extractToken } from "../middleware/authMiddleware";
+import { dailyRateLimiterService } from "../services/dailyRateLimiterService";
 
 export const communicationRouter = Router();
 
@@ -81,11 +82,25 @@ communicationRouter.post("/interest/send", async (req: Request, res: Response) =
       }
     }
 
+    // Anti-Bot & Anti-Spam Daily Rate Limiting (Feature: 15 interests/day for free users)
+    const senderAccount = dbService.getAccount(data.senderId);
+    const isVip = senderAccount?.role?.role === "vip" || senderAccount?.role?.role === "admin" || (senderAccount?.membership?.status === "active" && senderAccount?.membership?.tier !== "free");
+    const quotaCheck = dailyRateLimiterService.checkAndConsumeInterest(data.senderId, isVip);
+    if (!quotaCheck.allowed) {
+      return res.status(429).json({
+        success: false,
+        error: quotaCheck.error,
+        remaining: quotaCheck.remaining,
+        limit: quotaCheck.limit,
+      });
+    }
+
     const result = await dbService.sendInterest(data);
     res.status(201).json({
       success: true,
       interest: result,
-      message: `Interest successfully sent to ${data.receiverName}.`,
+      remainingDailyInterests: quotaCheck.remaining,
+      message: `Interest successfully sent to ${data.receiverName}. (${quotaCheck.remaining} daily interests remaining today)`,
     });
   } catch (err: any) {
     res.status(400).json({
@@ -143,6 +158,18 @@ communicationRouter.get("/interest/list/:userId", (req: Request, res: Response) 
   }
 });
 
+communicationRouter.get("/daily-quota/:userId", (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const account = dbService.getAccount(userId);
+    const isVip = account?.role?.role === "vip" || account?.role?.role === "admin" || (account?.membership?.status === "active" && account?.membership?.tier !== "free");
+    const quota = dailyRateLimiterService.getQuotaStatus(userId, isVip);
+    res.json({ success: true, isVip, quota });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // ============================================================================
 // 2. SECURE 1-ON-1 CHAT WITH RIGOROUS DLP INTERCEPTOR
 // ============================================================================
@@ -180,6 +207,19 @@ communicationRouter.post("/chat/send", async (req: Request, res: Response) => {
           error: "Unauthorized. You cannot send messages from another user's identity.",
         });
       }
+    }
+
+    // Anti-Bot & Anti-Spam Message Rate Limiting
+    const senderAccount = dbService.getAccount(data.senderId);
+    const isVip = senderAccount?.role?.role === "vip" || senderAccount?.role?.role === "admin" || (senderAccount?.membership?.status === "active" && senderAccount?.membership?.tier !== "free");
+    const quotaCheck = dailyRateLimiterService.checkAndConsumeMessage(data.senderId, isVip);
+    if (!quotaCheck.allowed) {
+      return res.status(429).json({
+        success: false,
+        error: quotaCheck.error,
+        remaining: quotaCheck.remaining,
+        limit: quotaCheck.limit,
+      });
     }
 
     // Run Server-side Data Leak Prevention (DLP)
