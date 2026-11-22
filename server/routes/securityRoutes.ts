@@ -4,6 +4,8 @@ import { dbService } from "../databaseService";
 import { emailGatewayService } from "../services/emailGatewayService";
 import { requireAdminAuth } from "../middleware/authMiddleware";
 import { photoSanitizerService } from "../services/photoSanitizerService";
+import { nsfwImageGuardService } from "../services/nsfwImageGuardService";
+import { faceDeduplicationService } from "../services/faceDeduplicationService";
 
 export const securityRouter = Router();
 
@@ -329,7 +331,7 @@ securityRouter.get("/block-hide/summary/:userId", (req: Request, res: Response) 
 });
 
 // ============================================================================
-// EXIF GPS SANITIZER & ADMIN GEO-AUDIT VAULT (Sharp Auto-Purge)
+// EXIF GPS SANITIZER, NSFW GUARD & BIOMETRIC FACE DEDUPLICATION
 // ============================================================================
 securityRouter.post("/photo/upload-sanitized", async (req: Request, res: Response) => {
   try {
@@ -338,7 +340,42 @@ securityRouter.post("/photo/upload-sanitized", async (req: Request, res: Respons
       return res.status(400).json({ success: false, error: "Photo data URI is required." });
     }
 
+    // Convert data URI to buffer for analysis
+    const base64Data = photoDataUri.replace(/^data:image\/\w+;base64,/, "");
+    const photoBuffer = Buffer.from(base64Data, "base64");
+
+    // 1. NSFW & Inappropriate Content Evaluation
+    const nsfwCheck = await nsfwImageGuardService.evaluateImage(photoBuffer);
+    if (!nsfwCheck.isSafe) {
+      return res.status(400).json({
+        success: false,
+        error: nsfwCheck.reason || "Inappropriate photo detected. Please upload an authentic portrait.",
+        category: nsfwCheck.category,
+        metrics: nsfwCheck.metrics,
+      });
+    }
+
+    // 2. Biometric Face Deduplication Check
+    const faceCheck = await faceDeduplicationService.checkDuplicateFace(photoBuffer, userId);
+    if (faceCheck.isDuplicate) {
+      return res.status(409).json({
+        success: false,
+        duplicateFaceDetected: true,
+        matchedUserId: faceCheck.matchedUserId,
+        similarity: faceCheck.similarity,
+        error: faceCheck.message,
+      });
+    }
+
+    // 3. EXIF GPS Metadata Sanitization & Admin Audit
     const { sanitizedDataUri, geoAudit } = await photoSanitizerService.sanitizeAndStripExif(photoDataUri);
+
+    // Register Face Descriptor in Database
+    faceDeduplicationService.registerFaceDescriptor(
+      userId,
+      faceCheck.descriptor,
+      sanitizedDataUri.slice(0, 100) + "..."
+    );
 
     // Save Geo-Audit record strictly for Admin inspection
     const auditRecord = dbService.recordPhotoGeoAudit({
@@ -361,11 +398,92 @@ securityRouter.post("/photo/upload-sanitized", async (req: Request, res: Respons
       exifStripped: true,
       geoAuditLogged: true,
       hasEmbeddedGps: geoAudit.hasGps,
+      faceVerified: true,
       message: "Photo processed successfully. All home/device GPS EXIF tags permanently stripped for user privacy.",
       auditId: auditRecord.id,
     });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err.message || "Failed to sanitize photo." });
+  }
+});
+
+// ============================================================================
+// TRUST BADGE RETRIEVAL ENDPOINT
+// ============================================================================
+securityRouter.get("/trust-badges/:userId", (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const badges = dbService.getUserTrustBadges(userId);
+    res.json({ success: true, badges });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ============================================================================
+// COMMUNITY REPORTING & 3-STRIKE AUTO-SUSPENSION ENDPOINT
+// ============================================================================
+const reportProfileSchema = z.object({
+  reporterId: z.string().min(1),
+  reportedUserId: z.string().min(1),
+  reportedUserName: z.string().min(1),
+  reason: z.string().min(2),
+  severity: z.enum(["Low", "Medium", "High", "Critical"]).optional(),
+});
+
+securityRouter.post("/report-profile", async (req: Request, res: Response) => {
+  try {
+    const data = reportProfileSchema.parse(req.body);
+    if (data.reporterId === data.reportedUserId) {
+      return res.status(400).json({ success: false, error: "You cannot report your own profile." });
+    }
+
+    const result = await dbService.submitModerationReport(data);
+    res.json({
+      success: true,
+      report: result.report,
+      autoSuspended: result.autoSuspended,
+      distinctVerifiedReports: result.distinctVerifiedReports,
+      message: result.message,
+    });
+  } catch (err: any) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// ============================================================================
+// ADMIN SCAM ALERTS ENDPOINTS
+// ============================================================================
+securityRouter.get("/admin/scam-alerts", requireAdminAuth, (req: Request, res: Response) => {
+  try {
+    const { status } = req.query;
+    const alerts = dbService.getScamAlerts(typeof status === "string" ? status : undefined);
+    res.json({ success: true, alerts, total: alerts.length });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+securityRouter.post("/admin/scam-alerts/:alertId/resolve", requireAdminAuth, (req: Request, res: Response) => {
+  try {
+    const { alertId } = req.params;
+    const { action } = req.body || {}; // "quarantined" | "dismissed"
+    if (action !== "quarantined" && action !== "dismissed") {
+      return res.status(400).json({ success: false, error: "Action must be quarantined or dismissed." });
+    }
+
+    const updated = dbService.resolveScamAlert(alertId, action);
+    if (!updated) {
+      return res.status(404).json({ success: false, error: "Alert not found." });
+    }
+
+    res.json({
+      success: true,
+      alert: updated,
+      message: `Alert resolved: Account ${action === "quarantined" ? "quarantined and suspended" : "dismissed"}.`,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 

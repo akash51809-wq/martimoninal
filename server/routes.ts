@@ -33,6 +33,7 @@ const registrationSchema = z.object({
   gender: z.enum(["Male", "Female", "Other"]),
   dob: z.string().min(4, "Date of birth required"),
   profileCreatedBy: z.string().optional(),
+  deviceFingerprint: z.string().optional(),
 });
 
 const loginSchema = z.object({

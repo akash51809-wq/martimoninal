@@ -17,6 +17,7 @@ import {
   ArrowRight,
   CheckCircle2,
 } from "lucide-react";
+import { getDeviceFingerprint } from "@/lib/deviceFingerprint";
 
 function calculateAge(dobStr: string): number {
   const dob = new Date(dobStr);
@@ -43,6 +44,7 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [gender, setGender] = useState<"Male" | "Female">("Male");
   const [dob, setDob] = useState("");
+  const [deviceFingerprint, setDeviceFingerprint] = useState<string>("");
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [confirmedAge, setConfirmedAge] = useState(false);
@@ -51,6 +53,7 @@ export default function RegisterPage() {
 
   useEffect(() => {
     document.title = "Register Free - Vivah Kar Lo";
+    getDeviceFingerprint().then((dfp) => setDeviceFingerprint(dfp));
   }, []);
 
   // Real-time live duplicate checks across ALL accounts as the user types
@@ -63,6 +66,13 @@ export default function RegisterPage() {
     () => isEmailRegistered(email),
     [email, isEmailRegistered]
   );
+
+  const isDisposableEmail = useMemo(() => {
+    if (!email || !email.includes("@")) return false;
+    const domain = email.split("@")[1]?.toLowerCase().trim() || "";
+    const disposablePatterns = /(10minute|tempmail|guerrillamail|mailinator|trashmail|sharklasers|yopmail|dispostable|fakeinbox|getnada|mohmal|crazymailing)/i;
+    return disposablePatterns.test(domain);
+  }, [email]);
 
   const cleanMobileDigits = useMemo(() => {
     const digits = mobile.replace(/\D/g, "");
@@ -95,6 +105,13 @@ export default function RegisterPage() {
 
     if (!isEmailValidFormat) {
       setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (isDisposableEmail) {
+      setError(
+        "Temporary or 10-Minute email addresses are prohibited. Please use a permanent email address (e.g. Gmail, Outlook, Yahoo)."
+      );
       return;
     }
 
@@ -159,6 +176,7 @@ export default function RegisterPage() {
       password,
       gender,
       dob,
+      deviceFingerprint,
     });
 
     if (!res.ok) {
@@ -311,10 +329,19 @@ export default function RegisterPage() {
               {isEmailValidFormat && !liveEmailDuplicate && (
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 absolute right-3.5 top-1/2 -translate-y-1/2" />
               )}
-              {liveEmailDuplicate && (
+              {isDisposableEmail && (
                 <AlertCircle className="w-4 h-4 text-rose-600 absolute right-3.5 top-1/2 -translate-y-1/2" />
               )}
             </div>
+            {isDisposableEmail && (
+              <p
+                role="alert"
+                className="text-xs font-semibold text-rose-600 flex items-center gap-1.5 pt-0.5"
+              >
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                <span>Temporary / 10-Minute emails are prohibited. Use permanent email.</span>
+              </p>
+            )}
             {liveEmailDuplicate && (
               <p
                 role="alert"

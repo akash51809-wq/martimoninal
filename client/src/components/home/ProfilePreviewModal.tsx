@@ -14,6 +14,7 @@ import { SendInterestModal } from "@/components/modals/SendInterestModal";
 import { BlockUserModal } from "@/components/modals/BlockUserModal";
 import { ReportUserModal } from "@/components/modals/ReportUserModal";
 import { CompatibilityDeepDiveModal } from "@/components/matching/CompatibilityDeepDiveModal";
+import { TrustBadge } from "@/components/trust/TrustBadge";
 import {
   BadgeCheck,
   MapPin,
@@ -168,13 +169,11 @@ export const ProfilePreviewModal: React.FC<ProfilePreviewModalProps> = ({
                 <span className="px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-[11px] font-semibold text-amber-200">
                   {profile.profileId}
                 </span>
-                {profile.verified && (
-                  <Badge className="bg-emerald-500 text-white border-0 text-[11px]">
-                    <BadgeCheck className="w-3.5 h-3.5 mr-1" />
-                    Govt ID Verified
-                  </Badge>
-                )}
-                <span className="px-2 py-0.5 rounded-full bg-amber-500/30 backdrop-blur-md border border-amber-300/40 text-amber-200 text-[11px] font-bold">
+                <TrustBadge
+                  tier={profile.verified ? "selfie_id" : "basic"}
+                  size="sm"
+                />
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-500/30 backdrop-blur-md border border-amber-300/40 text-amber-200 text-[11px] font-bold">
                   85% Trust Score
                 </span>
               </div>

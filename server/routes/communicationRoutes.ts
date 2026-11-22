@@ -4,6 +4,7 @@ import { dbService } from "../databaseService";
 import { analyzeMessageForDlp } from "../utils/dataLeakPrevention";
 import { extractToken } from "../middleware/authMiddleware";
 import { dailyRateLimiterService } from "../services/dailyRateLimiterService";
+import { contentModerationService } from "../services/contentModerationService";
 
 export const communicationRouter = Router();
 
@@ -222,7 +223,44 @@ communicationRouter.post("/chat/send", async (req: Request, res: Response) => {
       });
     }
 
-    // Run Server-side Data Leak Prevention (DLP)
+    // 1. Google Perspective API / Multi-lingual Abuse & Harassment Filter
+    const toxicityResult = await contentModerationService.checkToxicity(data.text);
+    if (toxicityResult.isToxic) {
+      return res.status(400).json({
+        success: false,
+        blocked: true,
+        error: toxicityResult.reason || "Abusive or inappropriate words detected. Please maintain respectful conversation.",
+        categories: toxicityResult.flaggedCategories,
+      });
+    }
+
+    // 2. Google Safe Browsing / Phishing Link Scanner
+    const linkCheck = await contentModerationService.checkLinks(data.text);
+    if (!linkCheck.isSafe) {
+      return res.status(403).json({
+        success: false,
+        blocked: true,
+        error: linkCheck.reason || "Suspicious or unverified external link detected for security.",
+        flaggedUrls: linkCheck.flaggedUrls,
+      });
+    }
+
+    // 3. Real-Time Chat Scam Keywords & Financial Solicitation Interceptor
+    const scamCheck = contentModerationService.detectScamKeywords(data.text, isVip);
+    if (scamCheck.isScamAlert) {
+      // Record Admin Scam Alert for immediate review
+      dbService.recordScamAlert({
+        senderUserId: data.senderId,
+        senderName: data.senderName,
+        receiverUserId: data.receiverId,
+        messageContent: data.text,
+        category: scamCheck.category || "financial_solicitation",
+        matchedKeywords: scamCheck.matchedKeywords,
+        severity: scamCheck.severity,
+      });
+    }
+
+    // 4. Run Server-side Data Leak Prevention (DLP)
     const dlpResult = analyzeMessageForDlp(data.text);
 
     if (dlpResult.isBlocked) {
@@ -250,6 +288,7 @@ communicationRouter.post("/chat/send", async (req: Request, res: Response) => {
     res.status(201).json({
       success: true,
       message: saved,
+      scamWarning: scamCheck.isScamAlert ? scamCheck.safetyWarning : undefined,
     });
   } catch (err: any) {
     res.status(400).json({

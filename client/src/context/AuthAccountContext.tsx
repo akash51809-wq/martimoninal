@@ -478,6 +478,7 @@ export interface RegisterStep1Input {
   password: string;
   gender: "Male" | "Female";
   dob: string;
+  deviceFingerprint?: string;
 }
 
 export interface ActionResult<T = undefined> {
@@ -948,6 +949,16 @@ export const AuthAccountProvider: React.FC<{ children: React.ReactNode }> = ({
   ): ActionResult<{ otp: string }> => {
     const mobile = normalizeMobile(input.mobile);
     const email = normalizeEmail(input.email);
+
+    const isDisposable = /@(10minute|tempmail|guerrilla|mailinator|trashmail|sharklasers|yopmail|dispostable|fakeinbox|getnada|mohmal)/i.test(email);
+    if (isDisposable) {
+      return {
+        ok: false,
+        code: "DISPOSABLE_EMAIL",
+        error:
+          "Temporary or disposable email addresses (such as 10-Minute Mail) are prohibited. Please use a permanent email address (e.g., Gmail, Outlook, Yahoo).",
+      };
+    }
 
     const existingMobile = state.accounts.find((a) => a.user.mobile === mobile);
     if (existingMobile) {

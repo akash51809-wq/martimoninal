@@ -16,6 +16,8 @@ import {
   DEFAULT_RANKING_WEIGHTS,
   determineArchetype,
 } from "../shared/advancedMatchingEngine";
+import { disposableEmailService } from "./services/disposableEmailService";
+import { deviceFingerprintService } from "./services/deviceFingerprintService";
 
 // ============================================================================
 // PII AES-256-GCM ENCRYPTION SERVICE AT REST (Aadhaar, Phone, Home Address)
@@ -265,7 +267,30 @@ export interface ReportRow {
   reason: string;
   severity: "Low" | "Medium" | "High" | "Critical";
   status: "Pending" | "Investigating" | "Resolved" | "Dismissed";
+  isReporterVerified?: boolean;
+  autoSuspendedTriggered?: boolean;
   createdAt: string;
+}
+
+export interface AdminScamAlertRow {
+  id: string;
+  senderUserId: string;
+  senderName?: string;
+  receiverUserId: string;
+  messageContent: string;
+  category: "financial_solicitation" | "otp_phishing" | "off_platform_diversion";
+  matchedKeywords: string[];
+  severity: "low" | "medium" | "high" | "critical";
+  status: "pending_review" | "quarantined" | "dismissed";
+  createdAt: string;
+}
+
+export interface UserTrustBadgeInfo {
+  basicVerified: boolean;
+  selfieIdVerified: boolean;
+  badgeTier: "none" | "basic" | "selfie_id";
+  badgeLabel: string;
+  trustScore: number;
 }
 
 export interface PartnerPreferencesRow {
@@ -582,6 +607,7 @@ export interface DatabaseState {
   whatsapp_logs: WhatsAppNotificationLogRow[];
   hidden_profiles: HiddenProfileRow[];
   photo_geo_audits: PhotoGeoAuditRow[];
+  admin_scam_alerts: AdminScamAlertRow[];
   personality_profiles: PersonalityProfile[];
   smart_ranking_weights: SmartRankingWeights;
 }
@@ -1681,6 +1707,7 @@ function createDefaultSeedData(): DatabaseState {
     whatsapp_logs,
     hidden_profiles,
     photo_geo_audits,
+    admin_scam_alerts: [],
     personality_profiles,
     smart_ranking_weights,
   };
@@ -1917,6 +1944,14 @@ class DatabaseService {
     }
 
     if (cleanEmail && cleanEmail.includes("@")) {
+      const disposableCheck = disposableEmailService.isDisposable(cleanEmail);
+      if (disposableCheck.isDisposable) {
+        return {
+          hasDuplicate: true,
+          field: "email",
+          message: "Temporary and disposable email addresses (such as 10-Minute Mail) are prohibited. Please use a permanent email address (e.g., Gmail, Outlook, Yahoo).",
+        };
+      }
       const exists = this.state.users.some(
         (u) => normalizeEmail(u.email) === cleanEmail && u.accountStatus !== "deleted"
       );
@@ -1943,14 +1978,23 @@ class DatabaseService {
     gender: "Male" | "Female" | "Other";
     dob: string;
     profileCreatedBy?: string;
+    deviceFingerprint?: string;
   }): Promise<{ success: boolean; user?: UserRow; error?: string }> {
     const cleanMobile = normalizeMobile(input.mobile);
     const cleanEmail = normalizeEmail(input.email);
 
-    // Verify duplicate checks again on backend
+    // Verify duplicate & disposable email checks again on backend
     const dupCheck = await this.checkDuplicates(cleanMobile, cleanEmail);
     if (dupCheck.hasDuplicate) {
       return { success: false, error: dupCheck.message };
+    }
+
+    // Verify Device Fingerprint velocity (Max 3 accounts per device per 24 hours)
+    if (input.deviceFingerprint) {
+      const deviceCheck = deviceFingerprintService.checkDeviceAllowed(input.deviceFingerprint);
+      if (!deviceCheck.allowed) {
+        return { success: false, error: deviceCheck.error };
+      }
     }
 
     const now = new Date().toISOString();
@@ -2057,6 +2101,11 @@ class DatabaseService {
     this.state.user_roles.unshift(newRole);
     this.state.registration_progress.unshift(newProgress);
     this.saveSnapshot();
+
+    // Record device fingerprint to enforce multi-account velocity controls
+    if (input.deviceFingerprint) {
+      deviceFingerprintService.recordDeviceRegistration(input.deviceFingerprint, userId);
+    }
 
     return { success: true, user: newUser };
   }
@@ -3539,22 +3588,148 @@ class DatabaseService {
     reportedUserName: string;
     reason: string;
     severity?: "Low" | "Medium" | "High" | "Critical";
-  }): Promise<ReportRow> {
+  }): Promise<{ report: ReportRow; autoSuspended: boolean; distinctVerifiedReports: number; message: string }> {
+    if (!this.state.moderation_reports) this.state.moderation_reports = [];
+
+    // Check if reporter is verified or active account
+    const reporterVerification = (this.state.user_verifications || []).find(
+      (v) => v.userId === data.reporterId
+    );
+    const reporterUser = (this.state.users || []).find((u) => u.id === data.reporterId);
+    const isReporterVerified = Boolean(
+      (reporterVerification &&
+        (reporterVerification.mobileVerified || reporterVerification.emailVerified || (reporterVerification as any).faceVerified)) ||
+      (reporterUser && reporterUser.accountStatus === "active")
+    );
+
     const r: ReportRow = {
       reportId: `REP-${Math.floor(10000 + Math.random() * 90000)}`,
       reporterId: data.reporterId,
       reportedUserId: data.reportedUserId,
       reportedUserName: data.reportedUserName,
       reason: data.reason,
-      severity: data.severity || "Medium",
+      severity: data.severity || (isReporterVerified ? "High" : "Medium"),
       status: "Pending",
+      isReporterVerified,
       createdAt: new Date().toISOString(),
     };
 
-    if (!this.state.moderation_reports) this.state.moderation_reports = [];
     this.state.moderation_reports.unshift(r);
+
+    // Count distinct verified members who have reported this user
+    const reportsForUser = this.state.moderation_reports.filter(
+      (rep) => rep.reportedUserId === data.reportedUserId && rep.isReporterVerified
+    );
+    const distinctVerifiedReporters = new Set(reportsForUser.map((rep) => rep.reporterId).filter(Boolean));
+    const verifiedCount = distinctVerifiedReporters.size;
+
+    let autoSuspended = false;
+
+    // AUTO-SUSPEND TRIGGER: >= 3 distinct verified users report this profile
+    if (verifiedCount >= 3) {
+      const targetUser = this.state.users.find((u) => u.id === data.reportedUserId);
+      if (targetUser && targetUser.accountStatus !== "suspended") {
+        targetUser.accountStatus = "suspended";
+        targetUser.updatedAt = new Date().toISOString();
+        autoSuspended = true;
+        r.autoSuspendedTriggered = true;
+        r.severity = "Critical";
+
+        // Record in Admin Scam / Safety Alerts
+        this.recordScamAlert({
+          senderUserId: data.reportedUserId,
+          senderName: data.reportedUserName,
+          receiverUserId: "SYSTEM_QUARANTINE",
+          messageContent: `Automated 3-Strike Community Safety Suspension: Account reported by 3 independent verified members (${Array.from(distinctVerifiedReporters).join(", ")}). Reason: ${data.reason}`,
+          category: "financial_solicitation",
+          matchedKeywords: ["community_multi_report", "auto_suspend_3_strikes"],
+          severity: "critical",
+        });
+      }
+    }
+
     this.saveSnapshot();
-    return r;
+
+    return {
+      report: r,
+      autoSuspended,
+      distinctVerifiedReports: verifiedCount,
+      message: autoSuspended
+        ? "This profile has received 3 independent verified member reports and has been automatically suspended pending administrative review."
+        : "Report submitted to Trust & Safety. Our moderation team will investigate.",
+    };
+  }
+
+  public recordScamAlert(data: Omit<AdminScamAlertRow, "id" | "status" | "createdAt">): AdminScamAlertRow {
+    if (!this.state.admin_scam_alerts) this.state.admin_scam_alerts = [];
+    const alert: AdminScamAlertRow = {
+      id: `scam-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      ...data,
+      status: "pending_review",
+      createdAt: new Date().toISOString(),
+    };
+    this.state.admin_scam_alerts.unshift(alert);
+    this.saveSnapshot();
+    return alert;
+  }
+
+  public getScamAlerts(status?: string): AdminScamAlertRow[] {
+    if (!this.state.admin_scam_alerts) return [];
+    if (status && status !== "all") {
+      return this.state.admin_scam_alerts.filter((a) => a.status === status);
+    }
+    return this.state.admin_scam_alerts;
+  }
+
+  public resolveScamAlert(alertId: string, status: "quarantined" | "dismissed"): AdminScamAlertRow | null {
+    if (!this.state.admin_scam_alerts) return null;
+    const alert = this.state.admin_scam_alerts.find((a) => a.id === alertId);
+    if (!alert) return null;
+    alert.status = status;
+
+    if (status === "quarantined") {
+      const user = this.state.users.find((u) => u.id === alert.senderUserId);
+      if (user) {
+        user.accountStatus = "suspended";
+        user.updatedAt = new Date().toISOString();
+      }
+    }
+
+    this.saveSnapshot();
+    return alert;
+  }
+
+  public getUserTrustBadges(userId: string): UserTrustBadgeInfo {
+    const verification = (this.state.user_verifications || []).find((v) => v.userId === userId);
+    const kyc = (this.state.kyc_documents || []).find((k) => k.userId === userId && k.status === "Approved");
+    const trust = this.getTrustScore(userId);
+
+    const emailVerified = Boolean(verification?.emailVerified);
+    const mobileVerified = Boolean(verification?.mobileVerified);
+    const faceVerified = Boolean(verification?.faceVerified);
+    const idVerified = Boolean(kyc || verification?.idVerified);
+
+    const basicVerified = emailVerified && mobileVerified;
+    const selfieIdVerified = faceVerified && idVerified;
+
+    let badgeTier: UserTrustBadgeInfo["badgeTier"] = "none";
+    let badgeLabel = "Unverified Profile";
+
+    if (selfieIdVerified) {
+      badgeTier = "selfie_id";
+      badgeLabel = "Selfie & Govt ID Verified";
+    } else if (basicVerified) {
+      badgeTier = "basic";
+      badgeLabel = "Basic Verified";
+    }
+
+    return {
+      basicVerified,
+      selfieIdVerified,
+      badgeTier,
+      badgeLabel,
+      trustScore: trust.score,
+    };
   }
 
   public getModerationReports(): ReportRow[] {
