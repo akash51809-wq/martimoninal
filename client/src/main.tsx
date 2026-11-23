@@ -7,10 +7,10 @@ if (typeof window !== "undefined" && "serviceWorker" in navigator && process.env
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("/sw.js").then(
       (registration) => {
-        console.log("✅ Sathiya PWA ServiceWorker registered with scope:", registration.scope);
+        console.log("✅ Vivah Kar Lo PWA ServiceWorker registered with scope:", registration.scope);
       },
       (err) => {
-        console.log("⚠️ Sathiya PWA ServiceWorker registration failed:", err);
+        console.log("⚠️ Vivah Kar Lo PWA ServiceWorker registration failed:", err);
       }
     );
   });

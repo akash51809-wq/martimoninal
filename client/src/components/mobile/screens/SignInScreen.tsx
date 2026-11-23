@@ -1,20 +1,29 @@
 import React, { useState } from "react";
 import { useMobileApp } from "../../../context/MobileAppContext";
-import { SathiyaLogo } from "../SathiyaLogo";
-import { ChevronLeft, Mail, Lock, Eye, EyeOff, Sparkles, Phone, ShieldCheck } from "lucide-react";
+import { VivahLogo } from "../VivahLogo";
+import { ChevronLeft, Mail, Lock, Eye, EyeOff, Sparkles, Phone, ShieldCheck, AlertCircle, Loader2 } from "lucide-react";
 
 export const SignInScreen: React.FC = () => {
-  const { setCurrentScreen } = useMobileApp();
-  const [emailOrPhone, setEmailOrPhone] = useState("shivani@demo.com");
-  const [password, setPassword] = useState("password123");
+  const { setCurrentScreen, login, isLoadingAuth, authError, setAuthError } = useMobileApp();
+  const [emailOrPhone, setEmailOrPhone] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loginMethod, setLoginMethod] = useState<"password" | "otp">("password");
   const [otpSent, setOtpSent] = useState(false);
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Instant smooth navigation to discovery feed
-    setCurrentScreen("feed");
+    if (!emailOrPhone.trim() || !password) return;
+    const res = await login(emailOrPhone, password);
+    if (!res.success) {
+      // Error handled and shown via authError
+    }
+  };
+
+  const handleQuickLogin = async (identity: string, pass: string) => {
+    setEmailOrPhone(identity);
+    setPassword(pass);
+    await login(identity, pass);
   };
 
   return (
@@ -42,22 +51,30 @@ export const SignInScreen: React.FC = () => {
       <div className="relative -mt-10 bg-white rounded-t-[32px] px-6 pt-10 pb-8 flex-1 flex flex-col justify-between shadow-2xl">
         {/* Floating Ring Logo Badge in Center Curve */}
         <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white p-2.5 rounded-2xl shadow-xl border border-orange-100 flex items-center justify-center">
-          <SathiyaLogo size={42} />
+          <VivahLogo size={42} />
         </div>
 
         <div>
           {/* Header */}
-          <div className="text-left mb-6">
+          <div className="text-left mb-5">
             <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Sign In</h2>
-            <p className="text-xs text-gray-500 mt-1">Welcome back! Please enter your details.</p>
+            <p className="text-xs text-gray-500 mt-1">Access your Vivah Kar Lo account with live matchmaking.</p>
           </div>
+
+          {/* Error Banner */}
+          {authError && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2.5 text-xs text-red-700">
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+              <span>{authError}</span>
+            </div>
+          )}
 
           {/* Form */}
           <form onSubmit={handleSignIn} className="space-y-4">
             {/* Input 1: Mobile No / Email */}
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">
-                Mobile No / Email
+                Registered Mobile No / Email
               </label>
               <div className="relative flex items-center">
                 <div className="absolute left-3.5 text-gray-400">
@@ -67,8 +84,11 @@ export const SignInScreen: React.FC = () => {
                   type="text"
                   required
                   value={emailOrPhone}
-                  onChange={(e) => setEmailOrPhone(e.target.value)}
-                  placeholder="Mobile No / Email"
+                  onChange={(e) => {
+                    setEmailOrPhone(e.target.value);
+                    if (authError) setAuthError(null);
+                  }}
+                  placeholder="e.g. 9876543210 or yourname@gmail.com"
                   className="w-full pl-10 pr-4 py-3 bg-[#F9FAFB] border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                 />
               </div>
@@ -88,8 +108,11 @@ export const SignInScreen: React.FC = () => {
                     type={showPassword ? "text" : "password"}
                     required
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (authError) setAuthError(null);
+                    }}
+                    placeholder="Enter account password"
                     className="w-full pl-10 pr-11 py-3 bg-[#F9FAFB] border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                   />
                   <button
@@ -104,7 +127,7 @@ export const SignInScreen: React.FC = () => {
                 <div className="flex justify-end mt-2">
                   <button
                     type="button"
-                    onClick={() => alert("Password reset instructions have been sent to your registered email/phone.")}
+                    onClick={() => alert("Password reset instructions: Please contact support at +91 93358 19686 or email vivahkarlo@gmail.com")}
                     className="text-xs font-medium text-orange-600 hover:text-orange-700"
                   >
                     Forgot Password?
@@ -140,28 +163,46 @@ export const SignInScreen: React.FC = () => {
             {/* Saffron Primary Sign In Button */}
             <button
               type="submit"
-              className="w-full mt-2 py-3.5 rounded-full bg-saffron-gradient text-white font-semibold text-sm shadow-saffron hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+              disabled={isLoadingAuth}
+              className="w-full mt-2 py-3.5 rounded-full bg-saffron-gradient text-white font-semibold text-sm shadow-saffron hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-70"
             >
-              <span>Sign In</span>
+              {isLoadingAuth ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span>Verifying Credentials...</span>
+                </>
+              ) : (
+                <span>Sign In to Account</span>
+              )}
             </button>
           </form>
 
-          {/* Quick Demo Login Option */}
-          <div className="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-200/80 flex items-center justify-between">
+          {/* Quick Database Test Accounts */}
+          <div className="mt-5 p-3.5 bg-amber-50/80 rounded-2xl border border-amber-200/90 space-y-2">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-orange-600 shrink-0" />
-              <div className="text-left">
-                <p className="text-[11px] font-bold text-gray-800">Quick UI Demo Mode</p>
-                <p className="text-[10px] text-gray-500">Sign in instantly without entering credentials</p>
-              </div>
+              <p className="text-[11px] font-bold text-gray-900">Instant Database Login Test:</p>
             </div>
-            <button
-              type="button"
-              onClick={() => setCurrentScreen("feed")}
-              className="px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-semibold shadow-sm"
-            >
-              Instant In
-            </button>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => handleQuickLogin("9876543210", "Vivah@123")}
+                disabled={isLoadingAuth}
+                className="px-2.5 py-1.5 bg-white hover:bg-orange-50 border border-orange-200 rounded-xl text-left transition-colors"
+              >
+                <p className="text-[10px] font-bold text-orange-800 truncate">Arjun Deshmukh</p>
+                <p className="text-[9px] text-gray-500">VIP (9876543210)</p>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickLogin("9811122233", "Vivah@123")}
+                disabled={isLoadingAuth}
+                className="px-2.5 py-1.5 bg-white hover:bg-orange-50 border border-orange-200 rounded-xl text-left transition-colors"
+              >
+                <p className="text-[10px] font-bold text-orange-800 truncate">Priya Kulkarni</p>
+                <p className="text-[9px] text-gray-500">Parent (9811122233)</p>
+              </button>
+            </div>
           </div>
 
           {/* Switch to OTP Login */}
@@ -186,7 +227,7 @@ export const SignInScreen: React.FC = () => {
               onClick={() => setCurrentScreen("register")}
               className="font-bold text-orange-600 hover:text-orange-700 hover:underline"
             >
-              Register Now !
+              Register Free Now!
             </button>
           </p>
         </div>

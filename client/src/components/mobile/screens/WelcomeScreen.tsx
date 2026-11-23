@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useMobileApp } from "../../../context/MobileAppContext";
-import { SathiyaLogo } from "../SathiyaLogo";
+import { VivahLogo } from "../VivahLogo";
 import { ChevronRight, Globe, Download, Sparkles, Heart } from "lucide-react";
 import { MOCK_LANGUAGES } from "../../../data/mockData";
 
 export const WelcomeScreen: React.FC = () => {
-  const { setCurrentScreen, selectedLanguage, setSelectedLanguage, installPwa } = useMobileApp();
+  const { user, setCurrentScreen, selectedLanguage, setSelectedLanguage, installPwa } = useMobileApp();
   const [showLanguageModal, setShowLanguageModal] = useState(false);
 
   const currentLangObj = MOCK_LANGUAGES.find((l) => l.code === selectedLanguage) || MOCK_LANGUAGES[0];
@@ -36,7 +36,7 @@ export const WelcomeScreen: React.FC = () => {
 
         {/* Circular Logo Badge */}
         <div className="bg-white/95 backdrop-blur-md p-2.5 rounded-2xl shadow-xl flex items-center justify-center border border-white/40">
-          <SathiyaLogo size={36} />
+          <VivahLogo size={36} />
         </div>
       </div>
 
@@ -61,31 +61,43 @@ export const WelcomeScreen: React.FC = () => {
 
         {/* Action Buttons */}
         <div className="w-full flex flex-col gap-3.5 max-w-xs">
-          {/* Sign In - Saffron Filled Button */}
-          <button
-            onClick={() => setCurrentScreen("signin")}
-            className="w-full py-4 rounded-full bg-saffron-gradient text-white font-semibold text-base shadow-saffron hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-          >
-            <span>Sign In</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
+          {user ? (
+            <button
+              onClick={() => setCurrentScreen("feed")}
+              className="w-full py-4 rounded-full bg-saffron-gradient text-white font-semibold text-base shadow-saffron hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+            >
+              <span>Continue as {user.name}</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          ) : (
+            <>
+              {/* Sign In - Saffron Filled Button */}
+              <button
+                onClick={() => setCurrentScreen("signin")}
+                className="w-full py-4 rounded-full bg-saffron-gradient text-white font-semibold text-base shadow-saffron hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+              >
+                <span>Sign In</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
 
-          {/* Register - Clean White Button */}
-          <button
-            onClick={() => setCurrentScreen("register")}
-            className="w-full py-4 rounded-full bg-white/95 hover:bg-white text-gray-800 font-semibold text-base shadow-lg border border-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-          >
-            <span>Register Free</span>
-            <Heart className="w-4 h-4 text-orange-500 fill-orange-500" />
-          </button>
+              {/* Register - Clean White Button */}
+              <button
+                onClick={() => setCurrentScreen("register")}
+                className="w-full py-4 rounded-full bg-white/95 hover:bg-white text-gray-800 font-semibold text-base shadow-lg border border-white active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+              >
+                <span>Register Free</span>
+                <Heart className="w-4 h-4 text-orange-500 fill-orange-500" />
+              </button>
 
-          {/* Explore As Guest / Directly View Profiles */}
-          <button
-            onClick={() => setCurrentScreen("feed")}
-            className="text-xs text-white/80 hover:text-white underline underline-offset-4 py-1 font-medium transition-colors"
-          >
-            Explore Profiles without Sign In →
-          </button>
+              {/* Explore As Guest / Directly View Profiles */}
+              <button
+                onClick={() => setCurrentScreen("feed")}
+                className="text-xs text-white/80 hover:text-white underline underline-offset-4 py-1 font-medium transition-colors"
+              >
+                Explore Profiles as Guest →
+              </button>
+            </>
+          )}
         </div>
 
         {/* Language Selector Pill */}

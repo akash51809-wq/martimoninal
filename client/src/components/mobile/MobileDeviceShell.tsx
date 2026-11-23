@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useMobileApp, ScreenType } from "../../context/MobileAppContext";
-import { SathiyaLogo } from "./SathiyaLogo";
+import { VivahLogo } from "./VivahLogo";
 import { BottomNavBar } from "./BottomNavBar";
 import { WelcomeScreen } from "./screens/WelcomeScreen";
 import { SignInScreen } from "./screens/SignInScreen";
@@ -106,7 +106,7 @@ export const MobileDeviceShell: React.FC = () => {
       <header className="max-w-4xl w-full mx-auto mb-3 sm:mb-5 bg-white/90 backdrop-blur-md rounded-2xl px-4 py-2.5 shadow-xs border border-orange-100 flex flex-wrap items-center justify-between gap-3">
         {/* App Title & Saffron Theme Badge */}
         <div className="flex items-center gap-2.5">
-          <SathiyaLogo size={32} showText={true} />
+          <VivahLogo size={32} showText={true} />
           <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-orange-50 border border-orange-200 text-orange-700 text-[11px] font-bold">
             <span className="w-2 h-2 rounded-full bg-orange-500 animate-ping" />
             <span>Saffron & Royal Gold Theme</span>
@@ -182,7 +182,7 @@ export const MobileDeviceShell: React.FC = () => {
           <button
             onClick={installPwa}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-saffron-gradient text-white text-xs font-bold shadow-saffron-sm hover:opacity-95 active:scale-95 transition-all"
-            title="Install Sathiya as standalone Mobile App"
+            title="Install Vivah Kar Lo as standalone Mobile App"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Install App</span>
@@ -244,7 +244,7 @@ export const MobileDeviceShell: React.FC = () => {
       {/* Footer Info */}
       <footer className="text-center mt-3 text-xs text-gray-500">
         <p>
-          <span className="font-semibold text-orange-600">Sathiya Matrimony Mobile App</span> • Fully Functional UI Prototype • Ready to Install on Android / iOS
+          <span className="font-semibold text-orange-600">Vivah Kar Lo Mobile App</span> • Official Mobile Application
         </p>
       </footer>
     </div>

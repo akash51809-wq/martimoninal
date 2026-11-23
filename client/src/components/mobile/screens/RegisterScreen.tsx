@@ -1,27 +1,40 @@
 import React, { useState } from "react";
 import { useMobileApp } from "../../../context/MobileAppContext";
-import { SathiyaLogo } from "../SathiyaLogo";
-import { ChevronLeft, Mail, Lock, Phone, User, Calendar, ShieldCheck, Heart } from "lucide-react";
+import { VivahLogo } from "../VivahLogo";
+import { ChevronLeft, Mail, Lock, Phone, User, Calendar, ShieldCheck, Heart, AlertCircle, Loader2 } from "lucide-react";
 import { MOCK_COMMUNITIES } from "../../../data/mockData";
 
 export const RegisterScreen: React.FC = () => {
-  const { setCurrentScreen } = useMobileApp();
+  const { setCurrentScreen, registerUser, isLoadingAuth, authError, setAuthError } = useMobileApp();
   const [profileFor, setProfileFor] = useState("Self");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const [gender, setGender] = useState<"Female" | "Male">("Female");
-  const [caste, setCaste] = useState("Maratha");
+  const [dob, setDob] = useState("1998-05-15");
+  const [caste, setCaste] = useState("Brahmin");
   const [step, setStep] = useState<1 | 2>(1);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (step === 1) {
+      if (!fullName.trim()) return;
       setStep(2);
     } else {
-      alert("Registration Successful! Welcome to Vivah Kar Lo Matrimony.");
-      setCurrentScreen("feed");
+      if (!mobile.trim() || !email.trim() || !password) return;
+      const res = await registerUser({
+        fullName,
+        mobile,
+        email,
+        password,
+        gender,
+        dob,
+        profileCreatedBy: profileFor,
+      });
+      if (!res.success) {
+        // Error displayed via authError
+      }
     }
   };
 
@@ -50,48 +63,88 @@ export const RegisterScreen: React.FC = () => {
       <div className="relative -mt-10 bg-white rounded-t-[32px] px-6 pt-10 pb-8 flex-1 flex flex-col shadow-2xl">
         {/* Floating Ring Logo Badge in Center Curve */}
         <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-white p-2.5 rounded-2xl shadow-xl border border-orange-100 flex items-center justify-center">
-          <SathiyaLogo size={42} />
+          <VivahLogo size={42} />
         </div>
 
         {/* Header with "Register" and "Go to Login" */}
-        <div className="flex justify-between items-baseline mb-5">
+        <div className="flex justify-between items-baseline mb-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Register</h2>
-            <p className="text-xs text-gray-500">Step {step} of 2 - Basic Profile</p>
+            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Create Account</h2>
+            <p className="text-xs text-gray-500">Step {step} of 2 - {step === 1 ? "Personal Basics" : "Contact & Security"}</p>
           </div>
           <button
             type="button"
             onClick={() => setCurrentScreen("signin")}
             className="text-xs font-semibold text-orange-600 hover:text-orange-700"
           >
-            Go to <span className="underline">Login</span>
+            Sign In Instead
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-3.5 flex-1 flex flex-col justify-between">
+        {/* Error Banner */}
+        {authError && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2.5 text-xs text-red-700">
+            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+            <span>{authError}</span>
+          </div>
+        )}
+
+        {/* Registration Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
           {step === 1 ? (
+            /* STEP 1: Basic Profile Info */
             <div className="space-y-3.5">
-              {/* Profile Created For */}
+              {/* Profile Created By Dropdown */}
               <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">
                   Profile Created For
                 </label>
-                <div className="grid grid-cols-4 gap-2">
-                  {["Self", "Son", "Daughter", "Sibling"].map((item) => (
+                <div className="grid grid-cols-3 gap-2">
+                  {["Self", "Son", "Daughter", "Brother", "Sister", "Friend"].map((opt) => (
                     <button
-                      key={item}
+                      key={opt}
                       type="button"
-                      onClick={() => setProfileFor(item)}
-                      className={`py-2 text-xs rounded-xl border font-medium transition-all ${
-                        profileFor === item
-                          ? "bg-orange-50 border-orange-500 text-orange-700 font-bold"
-                          : "border-gray-200 text-gray-600 hover:border-gray-300"
+                      onClick={() => setProfileFor(opt)}
+                      className={`py-2 text-xs font-semibold rounded-xl border transition-all ${
+                        profileFor === opt
+                          ? "bg-orange-50 border-orange-500 text-orange-700 shadow-2xs"
+                          : "border-gray-200 text-gray-600 hover:bg-gray-50"
                       }`}
                     >
-                      {item}
+                      {opt}
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* Gender Radio */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">
+                  Gender
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setGender("Female")}
+                    className={`py-2.5 text-xs font-bold rounded-xl border transition-all flex items-center justify-center gap-2 ${
+                      gender === "Female"
+                        ? "bg-rose-50 border-rose-400 text-rose-700 shadow-2xs"
+                        : "border-gray-200 text-gray-600"
+                    }`}
+                  >
+                    <span>Bride (Female)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGender("Male")}
+                    className={`py-2.5 text-xs font-bold rounded-xl border transition-all flex items-center justify-center gap-2 ${
+                      gender === "Male"
+                        ? "bg-blue-50 border-blue-400 text-blue-700 shadow-2xs"
+                        : "border-gray-200 text-gray-600"
+                    }`}
+                  >
+                    <span>Groom (Male)</span>
+                  </button>
                 </div>
               </div>
 
@@ -108,103 +161,13 @@ export const RegisterScreen: React.FC = () => {
                     type="text"
                     required
                     value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Candidate's Full Name"
-                    className="w-full pl-10 pr-4 py-2.5 bg-[#F9FAFB] border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                    onChange={(e) => {
+                      setFullName(e.target.value);
+                      if (authError) setAuthError(null);
+                    }}
+                    placeholder="Candidate's full name"
+                    className="w-full pl-10 pr-4 py-2.5 bg-[#F9FAFB] border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
                   />
-                </div>
-              </div>
-
-              {/* Email */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">
-                  Email Address
-                </label>
-                <div className="relative flex items-center">
-                  <div className="absolute left-3.5 text-gray-400">
-                    <Mail className="w-4 h-4" />
-                  </div>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter email address"
-                    className="w-full pl-10 pr-4 py-2.5 bg-[#F9FAFB] border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
-                  />
-                </div>
-              </div>
-
-              {/* Mobile No */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">
-                  Mobile Number
-                </label>
-                <div className="relative flex items-center">
-                  <div className="absolute left-3.5 text-gray-400">
-                    <Phone className="w-4 h-4" />
-                  </div>
-                  <input
-                    type="tel"
-                    required
-                    value={mobile}
-                    onChange={(e) => setMobile(e.target.value)}
-                    placeholder="+91 98765 43210"
-                    className="w-full pl-10 pr-4 py-2.5 bg-[#F9FAFB] border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
-                  />
-                </div>
-              </div>
-
-              {/* Password */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">
-                  Create Password
-                </label>
-                <div className="relative flex items-center">
-                  <div className="absolute left-3.5 text-gray-400">
-                    <Lock className="w-4 h-4" />
-                  </div>
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Minimum 6 characters"
-                    className="w-full pl-10 pr-4 py-2.5 bg-[#F9FAFB] border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
-                  />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-3.5 animate-in fade-in duration-200">
-              {/* Gender */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1.5">
-                  Gender
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setGender("Female")}
-                    className={`py-2.5 rounded-xl border text-sm font-semibold flex items-center justify-center gap-2 ${
-                      gender === "Female"
-                        ? "bg-orange-50 border-orange-500 text-orange-700"
-                        : "border-gray-200 text-gray-600"
-                    }`}
-                  >
-                    <span>Bride (Female)</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setGender("Male")}
-                    className={`py-2.5 rounded-xl border text-sm font-semibold flex items-center justify-center gap-2 ${
-                      gender === "Male"
-                        ? "bg-orange-50 border-orange-500 text-orange-700"
-                        : "border-gray-200 text-gray-600"
-                    }`}
-                  >
-                    <span>Groom (Male)</span>
-                  </button>
                 </div>
               </div>
 
@@ -220,8 +183,83 @@ export const RegisterScreen: React.FC = () => {
                   <input
                     type="date"
                     required
-                    defaultValue="1999-05-15"
-                    className="w-full pl-10 pr-4 py-2.5 bg-[#F9FAFB] border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-[#F9FAFB] border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* STEP 2: Contact, Credentials & Community */
+            <div className="space-y-3.5">
+              {/* Mobile Number */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">
+                  10-Digit Mobile Number
+                </label>
+                <div className="relative flex items-center">
+                  <div className="absolute left-3.5 text-gray-400">
+                    <Phone className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="tel"
+                    required
+                    maxLength={10}
+                    value={mobile}
+                    onChange={(e) => {
+                      setMobile(e.target.value.replace(/\D/g, ""));
+                      if (authError) setAuthError(null);
+                    }}
+                    placeholder="e.g. 9876543210"
+                    className="w-full pl-10 pr-4 py-2.5 bg-[#F9FAFB] border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                  />
+                </div>
+              </div>
+
+              {/* Email Address */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">
+                  Email Address
+                </label>
+                <div className="relative flex items-center">
+                  <div className="absolute left-3.5 text-gray-400">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (authError) setAuthError(null);
+                    }}
+                    placeholder="e.g. candidate@example.com"
+                    className="w-full pl-10 pr-4 py-2.5 bg-[#F9FAFB] border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1">
+                  Create Password (min. 6 characters)
+                </label>
+                <div className="relative flex items-center">
+                  <div className="absolute left-3.5 text-gray-400">
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="password"
+                    required
+                    minLength={6}
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      if (authError) setAuthError(null);
+                    }}
+                    placeholder="Create a strong password"
+                    className="w-full pl-10 pr-4 py-2.5 bg-[#F9FAFB] border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
                   />
                 </div>
               </div>
@@ -229,55 +267,50 @@ export const RegisterScreen: React.FC = () => {
               {/* Community / Caste */}
               <div>
                 <label className="block text-xs font-semibold text-gray-600 mb-1">
-                  Religion & Caste
+                  Community / Caste
                 </label>
                 <select
                   value={caste}
                   onChange={(e) => setCaste(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-[#F9FAFB] border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                  className="w-full px-3.5 py-2.5 bg-[#F9FAFB] border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
                 >
-                  {MOCK_COMMUNITIES.filter((c) => c !== "All Communities").map((c) => (
-                    <option key={c} value={c}>
-                      Hindu - {c}
-                    </option>
-                  ))}
-                  <option value="Jain">Jain - Shwetamber/Digamber</option>
-                  <option value="Sikh">Sikh - Khatri/Arora</option>
+                  <option>Brahmin</option>
+                  <option>Maratha</option>
+                  <option>Agarwal</option>
+                  <option>Gupta</option>
+                  <option>Rajput</option>
+                  <option>Kayastha</option>
+                  <option>Jat</option>
+                  <option>Patel</option>
+                  <option>Reddy</option>
+                  <option>Other / Open to All</option>
                 </select>
               </div>
 
-              {/* Mother Tongue */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">
-                  Mother Tongue
-                </label>
-                <select className="w-full px-3.5 py-2.5 bg-[#F9FAFB] border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500">
-                  <option>Hindi</option>
-                  <option>Marathi</option>
-                  <option>Gujarati</option>
-                  <option>Punjabi</option>
-                  <option>Bengali</option>
-                  <option>Tamil</option>
-                  <option>Telugu</option>
-                </select>
-              </div>
-
-              <div className="flex items-start gap-2 pt-2">
-                <input type="checkbox" id="terms" defaultChecked className="mt-1 accent-orange-600 rounded" />
+              <div className="flex items-start gap-2 pt-1">
+                <input type="checkbox" id="terms" defaultChecked required className="mt-1 accent-orange-600 rounded" />
                 <label htmlFor="terms" className="text-[11px] text-gray-500 leading-tight">
-                  I agree to Vivah Kar Lo's Terms of Service, Privacy Policy, and confirm that all details provided are accurate for matrimonial verification.
+                  I agree to Vivah Kar Lo's Terms of Service and confirm all details are authentic for matrimonial verification.
                 </label>
               </div>
             </div>
           )}
 
-          {/* Saffron Primary Register Button */}
-          <div className="pt-4">
+          {/* Saffron Primary Action Button */}
+          <div className="pt-2">
             <button
               type="submit"
-              className="w-full py-3.5 rounded-full bg-saffron-gradient text-white font-semibold text-sm shadow-saffron hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+              disabled={isLoadingAuth}
+              className="w-full py-3.5 rounded-full bg-saffron-gradient text-white font-semibold text-sm shadow-saffron hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-70"
             >
-              <span>{step === 1 ? "Continue to Next Step →" : "Create My Matrimony Profile"}</span>
+              {isLoadingAuth ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span>Registering Account in Database...</span>
+                </>
+              ) : (
+                <span>{step === 1 ? "Next: Contact & Password →" : "Create My Matrimony Profile"}</span>
+              )}
             </button>
           </div>
         </form>

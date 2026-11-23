@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useMobileApp } from "../../../context/MobileAppContext";
-import { SathiyaLogo } from "../SathiyaLogo";
+import { VivahLogo } from "../VivahLogo";
 import { 
   Heart, 
   RotateCcw, 
@@ -26,12 +26,14 @@ export const DiscoveryFeedScreen: React.FC = () => {
     currentProfileIndex, 
     setCurrentProfileIndex, 
     setSelectedProfile, 
-    setCurrentScreen,
-    toggleLike,
-    isLiked,
-    user,
-    notifications,
-    setActiveChatProfileId
+    setCurrentScreen, 
+    toggleLike, 
+    isLiked, 
+    user, 
+    notifications, 
+    setActiveChatProfileId,
+    refreshProfiles,
+    isLoadingProfiles
   } = useMobileApp();
 
   const [isMuted, setIsMuted] = useState(false);
@@ -44,7 +46,7 @@ export const DiscoveryFeedScreen: React.FC = () => {
   if (!profile) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-[#FFFDF9]">
-        <SathiyaLogo size={48} />
+        <VivahLogo size={48} />
         <h3 className="font-bold text-lg text-gray-800 mt-4">No Profiles Matching Filters</h3>
         <p className="text-xs text-gray-500 mt-1 mb-6">Try broadening your age, caste, or location filters.</p>
         <button
@@ -90,15 +92,25 @@ export const DiscoveryFeedScreen: React.FC = () => {
           className="flex items-center gap-1.5 focus:outline-none"
         >
           <div className="p-1 rounded-xl bg-white/95 backdrop-blur-md shadow-md border border-white/40">
-            <SathiyaLogo size={26} />
+            <VivahLogo size={26} />
           </div>
           <span className="font-serif-royal font-bold text-white text-lg tracking-wide drop-shadow-md">
             Vivah Kar Lo
           </span>
         </button>
 
-        {/* Right Header Icons: Search, Bell, Profile Avatar */}
-        <div className="flex items-center gap-2.5">
+        {/* Right Header Icons: Refresh, Search, Bell, Profile Avatar */}
+        <div className="flex items-center gap-2">
+          {/* Refresh Matches from Live Database */}
+          <button
+            onClick={() => refreshProfiles()}
+            disabled={isLoadingProfiles}
+            className="w-8 h-8 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-orange-600/60 transition-colors"
+            title="Refresh Database Matches"
+          >
+            <RotateCcw className={`w-3.5 h-3.5 ${isLoadingProfiles ? "animate-spin text-orange-400" : ""}`} />
+          </button>
+
           {/* Search / Filter */}
           <button
             onClick={() => setCurrentScreen("filter")}
@@ -124,11 +136,15 @@ export const DiscoveryFeedScreen: React.FC = () => {
 
           {/* User Profile Avatar */}
           <button
-            onClick={() => setCurrentScreen("my-profile")}
-            className="w-8 h-8 rounded-full ring-2 ring-orange-500 overflow-hidden shadow-md"
-            title="My Profile"
+            onClick={() => setCurrentScreen(user ? "my-profile" : "signin")}
+            className="w-8 h-8 rounded-full ring-2 ring-orange-500 overflow-hidden shadow-md bg-gray-900 flex items-center justify-center"
+            title={user ? "My Profile" : "Sign In"}
           >
-            <img src={user.photo} alt={user.name} className="w-full h-full object-cover" />
+            {user?.photo ? (
+              <img src={user.photo} alt={user.name} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-[9px] text-orange-300 font-bold">Login</span>
+            )}
           </button>
         </div>
       </div>

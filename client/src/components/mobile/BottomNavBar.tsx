@@ -3,10 +3,10 @@ import { useMobileApp, ScreenType } from "../../context/MobileAppContext";
 import { Compass, Heart, MessageCircle, Sparkles, User, Flame } from "lucide-react";
 
 export const BottomNavBar: React.FC = () => {
-  const { currentScreen, setCurrentScreen, likedProfileIds, chats } = useMobileApp();
+  const { currentScreen, setCurrentScreen, likedProfileIds, chats, isAuthenticated } = useMobileApp();
 
-  // Hide bottom nav on welcome, signin, register screens
-  if (currentScreen === "welcome" || currentScreen === "signin" || currentScreen === "register") {
+  // Hide bottom nav if unauthenticated or on welcome, signin, register screens
+  if (!isAuthenticated || currentScreen === "welcome" || currentScreen === "signin" || currentScreen === "register") {
     return null;
   }
 
