@@ -20,8 +20,10 @@ out/
 *.cert
 *.pfx
 secrets/
-server/data/
 server/data/*.json
+server/data/baileys_auth/
+server/data/wa_auth_session/
+!server/data/masterProfiles.ts
 service-account*.json
 firebase-adminsdk*.json
 google-services*.json
