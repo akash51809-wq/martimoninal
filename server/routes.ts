@@ -20,6 +20,7 @@ import { activityRouter } from "./routes/activityRoutes";
 import { supportRouter } from "./routes/supportRoutes";
 import { settingsRouter } from "./routes/settingsRoutes";
 import { gatewayRouter } from "./routes/gatewayRoutes";
+import { pingRouter } from "./routes/pingRoute";
 
 // Zod Validation Schemas for API Safety
 const duplicateCheckSchema = z.object({
@@ -59,8 +60,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await setupAuth(app);
 
   // ============================================================================
-  // HEALTH & TELEMETRY
+  // UPTIME KEEP-ALIVE PING & TELEMETRY (Render Anti-Sleep / Cron Job Endpoints)
   // ============================================================================
+  app.use("/ping", pingRouter);
+  app.use("/api/ping", pingRouter);
+  app.use("/health", pingRouter);
+
   app.get("/api/v1/health", (_req: Request, res: Response) => {
     res.json({
       status: "ok",
