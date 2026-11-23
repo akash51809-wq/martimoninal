@@ -9,6 +9,7 @@ dist/
 build/
 .next/
 out/
+android_app/bin/
 
 # Environment & Secret Files (CRITICAL: NEVER COMMIT TO GIT)
 .env
