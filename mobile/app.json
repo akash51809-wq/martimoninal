@@ -1,0 +1,80 @@
+{
+  "expo": {
+    "name": "Vivah Kar Lo",
+    "slug": "vivah-kar-lo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#721422"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "in.vivahkarlo.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Vivah Kar Lo requires camera access for live selfie verification and profile photo capture.",
+        "NSPhotoLibraryUsageDescription": "Vivah Kar Lo requires photo library access to upload matrimonial profile pictures and KYC verification documents.",
+        "NSLocationWhenInUseUsageDescription": "Vivah Kar Lo uses approximate city/state location to match you with compatible prospects nearby.",
+        "NSFaceIDUsageDescription": "Vivah Kar Lo uses Face ID to securely unlock your matrimonial account and sensitive messages."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#721422"
+      },
+      "package": "in.vivahkarlo.app",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "ACCESS_COARSE_LOCATION",
+        "USE_BIOMETRIC",
+        "USE_FINGERPRINT",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ]
+    },
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 3000
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Vivah Kar Lo to access your camera for selfie verification and photos."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Vivah Kar Lo to access your photos for profile pictures and KYC documents."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow Vivah Kar Lo to use biometric authentication for instant secure login."
+        }
+      ],
+      [
+        "expo-updates",
+        {
+          "username": "vivahkarlo"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "vivah-kar-lo-matrimonial-app"
+      },
+      "apiUrl": "http://10.0.2.2:3001"
+    }
+  }
+}

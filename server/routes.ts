@@ -1,5 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
+import path from "path";
+import fs from "fs";
 import { z } from "zod";
 import { dbService, normalizeEmail, normalizeMobile } from "./databaseService";
 import { isSupabaseConfigured } from "./supabase";
@@ -67,6 +69,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       service: "Vivah Kar Lo Production API",
       version: "2.0.0",
     });
+  });
+
+  // ============================================================================
+  // DIRECT ANDROID APK DOWNLOAD ENDPOINT
+  // ============================================================================
+  app.get("/downloads/vivahkarlo-release.apk", (_req: Request, res: Response) => {
+    const apkFilePath = path.resolve("public/downloads/vivahkarlo-release.apk");
+    if (fs.existsSync(apkFilePath)) {
+      res.setHeader("Content-Type", "application/vnd.android.package-archive");
+      res.setHeader("Content-Disposition", 'attachment; filename="vivahkarlo-release.apk"');
+      return res.sendFile(apkFilePath);
+    }
+    res.status(404).json({ error: "Release APK build is being generated. Please check back shortly." });
   });
 
   // ============================================================================

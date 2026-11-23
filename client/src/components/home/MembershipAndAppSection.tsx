@@ -10,6 +10,9 @@ import {
   ArrowRight,
   ShieldCheck,
   Sparkles,
+  Download,
+  QrCode,
+  CheckCircle2,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -196,44 +199,95 @@ export const MembershipAndAppSection: React.FC<MembershipAndAppSectionProps> = (
         </div>
       </section>
 
-      {/* Final Editorial CTA + Preserved Mobile App Companion Banner */}
-      <section className="py-16 bg-gradient-to-br from-[#FFF4E6] via-[#FFF9F2] to-[#FFEAD5] border-t border-amber-200/80">
+      {/* Dedicated Vivah Kar Lo Mobile App Showcase & Official Android APK Download Section */}
+      <section id="download-app" className="py-20 bg-gradient-to-br from-[#FFF4E6] via-[#FFF9F2] to-[#FFEAD5] border-t border-amber-200/80">
         <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-14 2xl:px-20">
-          <div className="rounded-3xl bg-white border border-amber-200 shadow-[0_20px_60px_-15px_rgba(154,52,18,0.15)] p-8 sm:p-12 flex flex-col lg:flex-row items-center justify-between gap-8">
-            <div className="space-y-3 text-center lg:text-left max-w-2xl">
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[#C2410C] text-sm font-semibold">
-                <ShieldCheck className="w-4 h-4" />
-                Same Account • Web &amp; Mobile Ready
-              </div>
-              <h2 className="font-serif-royal text-2xl sm:text-4xl font-bold text-[#2B120C]">
-                Begin Your Search With Complete Peace of Mind
-              </h2>
-              <p className="text-base sm:text-lg text-[#5C4740]">
-                Create your free Vivah Kar Lo profile today, or preview our
-                interactive mobile app interface saved alongside this platform.
-              </p>
-            </div>
+          <div className="rounded-3xl bg-white border border-amber-200 shadow-[0_20px_60px_-15px_rgba(154,52,18,0.15)] p-8 sm:p-12">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
+              
+              {/* Left Column: Mobile App Showcase Details */}
+              <div className="space-y-4 text-center lg:text-left max-w-2xl">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[#C2410C] text-sm font-semibold">
+                  <Smartphone className="w-4 h-4 text-[#EA580C]" />
+                  Vivah Kar Lo Mobile App • Android &amp; iOS Ready
+                </div>
+                
+                <h2 className="font-serif-royal text-2xl sm:text-4xl font-bold text-[#2B120C]">
+                  Carry Your Matrimonial Journey Everywhere
+                </h2>
+                
+                <p className="text-base sm:text-lg text-[#5C4740]">
+                  Get instant push alerts for interests, unlock with Face ID/Fingerprint, inspect 36-Guna Vedic Kundli reports, and chat securely with anti-scam fraud protection.
+                </p>
 
-            <div className="flex flex-col sm:flex-row items-center gap-3.5 shrink-0">
-              <Button
-                type="button"
-                onClick={onOpenRegister}
-                className="h-12 px-7 rounded-full bg-saffron-gradient hover:opacity-95 text-white font-semibold text-base shadow-saffron-sm"
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                {t("home.nav.register", "Register Free Now")}
-              </Button>
-              <Link href="/mobile">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-12 px-6 rounded-full border-amber-300 text-[#3B0A18] hover:bg-amber-50 font-semibold text-base"
+                {/* Feature Bullets */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-sm text-[#4E342E]">
+                  <div className="flex items-center gap-2 justify-center lg:justify-start">
+                    <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                    <span>Biometric Instant Unlock (Face ID &amp; Fingerprint)</span>
+                  </div>
+                  <div className="flex items-center gap-2 justify-center lg:justify-start">
+                    <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                    <span>Private Photo Shield &amp; EXIF GPS Stripping</span>
+                  </div>
+                  <div className="flex items-center gap-2 justify-center lg:justify-start">
+                    <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                    <span>In-Chat Real-Time Financial Fraud Warning</span>
+                  </div>
+                  <div className="flex items-center gap-2 justify-center lg:justify-start">
+                    <CheckCircle2 className="w-4 h-4 text-[#16A34A] shrink-0" />
+                    <span>Over-The-Air (OTA) Instant Updates</span>
+                  </div>
+                </div>
+
+                <div className="pt-2 text-xs text-[#8C7A74]">
+                  Package: in.vivahkarlo.app • Version: 1.0.0 (Production Release) • 100% Free Direct Download
+                </div>
+              </div>
+
+              {/* Right Column: Download Actions & QR Code */}
+              <div className="flex flex-col sm:flex-row lg:flex-col items-center gap-4 shrink-0 bg-[#FAF3EA] p-6 rounded-2xl border border-amber-200/80">
+                
+                {/* Official Direct Download Link */}
+                <a
+                  href="/downloads/vivahkarlo-release.apk"
+                  download="vivahkarlo-release.apk"
+                  className="w-full"
                 >
-                  <Smartphone className="w-4 h-4 mr-2 text-[#EA580C]" />
-                  Open Mobile App UI
-                  <ArrowRight className="w-4 h-4 ml-1.5" />
-                </Button>
-              </Link>
+                  <Button
+                    type="button"
+                    className="w-full h-13 px-8 rounded-full bg-saffron-gradient hover:opacity-95 text-white font-bold text-base shadow-saffron-md flex items-center justify-center gap-2.5"
+                  >
+                    <Download className="w-5 h-5" />
+                    Download Android APK (v1.0.0)
+                  </Button>
+                </a>
+
+                {/* Web Simulator Preview */}
+                <Link href="/mobile" className="w-full">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full h-12 px-6 rounded-full border-amber-300 text-[#3B0A18] hover:bg-amber-100/60 font-semibold text-sm flex items-center justify-center gap-2"
+                  >
+                    <Smartphone className="w-4 h-4 text-[#EA580C]" />
+                    Preview Mobile App in Browser
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </Link>
+
+                {/* QR Code / Scan Indicator */}
+                <div className="flex items-center gap-3 pt-1 text-xs text-[#5C4740]">
+                  <div className="w-9 h-9 rounded-lg bg-white border border-amber-300 flex items-center justify-center shadow-xs">
+                    <QrCode className="w-5 h-5 text-[#721422]" />
+                  </div>
+                  <div className="text-left">
+                    <div className="font-semibold text-[#2B120C]">Scan with Mobile Camera</div>
+                    <div>Direct APK download to phone</div>
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
         </div>
