@@ -31,7 +31,10 @@ Write-Host "6. Aligning APK with zipalign..."
 & "$BuildTools\zipalign.exe" -f -p 4 "android_app/bin/app.unaligned.apk" "android_app/bin/app.aligned.apk"
 
 Write-Host "7. Signing APK with apksigner (v1, v2, v3)..."
+New-Item -ItemType Directory -Force -Path "public/downloads" | Out-Null
+New-Item -ItemType Directory -Force -Path "client/public/downloads" | Out-Null
 & "$BuildTools\apksigner.bat" sign --ks "android_app/release.keystore" --ks-pass pass:vivahkarlo123 --out "public/downloads/vivahkarlo-release.apk" "android_app/bin/app.aligned.apk"
+Copy-Item "public/downloads/vivahkarlo-release.apk" "client/public/downloads/vivahkarlo-release.apk" -Force
 
 Write-Host "8. Verifying APK signature..."
 & "$BuildTools\apksigner.bat" verify --verbose "public/downloads/vivahkarlo-release.apk"

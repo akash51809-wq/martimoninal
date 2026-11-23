@@ -14,7 +14,7 @@ export const SathiyaLogo: React.FC<SathiyaLogoProps> = ({
   className = "",
   showText = false,
   light = false,
-  brandName = "Sathiya",
+  brandName = "Vivah Kar Lo",
   subtitle = "Matrimony",
 }) => {
   return (

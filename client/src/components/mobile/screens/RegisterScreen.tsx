@@ -20,7 +20,7 @@ export const RegisterScreen: React.FC = () => {
     if (step === 1) {
       setStep(2);
     } else {
-      alert("Registration Successful! Welcome to Sathiya Matrimony.");
+      alert("Registration Successful! Welcome to Vivah Kar Lo Matrimony.");
       setCurrentScreen("feed");
     }
   };
@@ -265,7 +265,7 @@ export const RegisterScreen: React.FC = () => {
               <div className="flex items-start gap-2 pt-2">
                 <input type="checkbox" id="terms" defaultChecked className="mt-1 accent-orange-600 rounded" />
                 <label htmlFor="terms" className="text-[11px] text-gray-500 leading-tight">
-                  I agree to Sathiya's Terms of Service, Privacy Policy, and confirm that all details provided are accurate for matrimonial verification.
+                  I agree to Vivah Kar Lo's Terms of Service, Privacy Policy, and confirm that all details provided are accurate for matrimonial verification.
                 </label>
               </div>
             </div>

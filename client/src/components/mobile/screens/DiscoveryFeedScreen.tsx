@@ -93,7 +93,7 @@ export const DiscoveryFeedScreen: React.FC = () => {
             <SathiyaLogo size={26} />
           </div>
           <span className="font-serif-royal font-bold text-white text-lg tracking-wide drop-shadow-md">
-            Sathiya
+            Vivah Kar Lo
           </span>
         </button>
 

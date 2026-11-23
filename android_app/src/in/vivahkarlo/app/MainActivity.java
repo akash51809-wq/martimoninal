@@ -21,7 +21,7 @@ import android.widget.ProgressBar;
 
 public class MainActivity extends Activity {
 
-    public static final String TARGET_URL = "https://vivah-karlo.onrender.com";
+    public static final String TARGET_URL = "https://vivah-karlo.onrender.com/app";
     public static final int FILE_CHOOSER_REQUEST_CODE = 1001;
 
     public WebView webView;

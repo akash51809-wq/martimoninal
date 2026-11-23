@@ -19,6 +19,7 @@ const AdminPortalPage = lazy(() => import("@/pages/admin/AdminPortalPage"));
 const Landing = lazy(() => import("@/pages/Landing"));
 const AboutUs = lazy(() => import("@/pages/AboutUs"));
 const MobileAppDownloadPage = lazy(() => import("@/pages/MobileAppDownloadPage"));
+const NativeMobileAppPage = lazy(() => import("@/pages/NativeMobileAppPage"));
 
 const queryClient = new QueryClient();
 
@@ -31,14 +32,23 @@ function PageLoader() {
 }
 
 export default function App() {
+  const isNativeApp = typeof window !== "undefined" && (
+    window.navigator.userAgent.includes("VivahKarLoApp") ||
+    new URLSearchParams(window.location.search).get("app") === "true"
+  );
+
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <AuthAccountProvider>
           <Suspense fallback={<PageLoader />}>
             <Switch>
-              {/* Phase 1 Website - Class-1 Premium Homepage */}
-              <Route path="/" component={PremiumHomepage} />
+              {/* If launched inside native Android app, automatically route to the dedicated mobile app */}
+              <Route path="/" component={isNativeApp ? NativeMobileAppPage : PremiumHomepage} />
+
+              {/* Dedicated Standalone Native Mobile App */}
+              <Route path="/app" component={NativeMobileAppPage} />
+              <Route path="/native" component={NativeMobileAppPage} />
 
               {/* Programme 01 - User Authentication & Account Management */}
               <Route path="/login" component={LoginPage} />
@@ -63,14 +73,13 @@ export default function App() {
               {/* Official Mobile App Download Page (with direct APK download & simulator) */}
               <Route path="/mobile" component={MobileAppDownloadPage} />
               <Route path="/download" component={MobileAppDownloadPage} />
-              <Route path="/app" component={MobileAppDownloadPage} />
 
               {/* Legacy routes kept accessible (lazy-loaded) */}
               <Route path="/desktop" component={Landing} />
               <Route path="/about" component={AboutUs} />
 
               {/* Fallback to Premium Homepage */}
-              <Route component={PremiumHomepage} />
+              <Route component={isNativeApp ? NativeMobileAppPage : PremiumHomepage} />
             </Switch>
           </Suspense>
           <GlobalSecurityShield />

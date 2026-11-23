@@ -75,19 +75,31 @@ export default function MobileAppDownloadPage() {
 
               {/* Download Buttons */}
               <div className="space-y-3">
-                <a
-                  href="/downloads/vivahkarlo-release.apk"
-                  download="vivahkarlo-release.apk"
-                  className="block w-full sm:w-auto"
-                >
-                  <Button
-                    type="button"
-                    className="w-full sm:w-auto h-14 px-8 rounded-full bg-saffron-gradient hover:opacity-95 text-white font-bold text-base shadow-saffron-md flex items-center justify-center gap-3 transition-transform hover:scale-[1.02]"
+                <div className="flex flex-wrap items-center gap-3">
+                  <a
+                    href="/downloads/vivahkarlo-release.apk"
+                    download="vivahkarlo-release.apk"
+                    className="block w-full sm:w-auto"
                   >
-                    <Download className="w-5 h-5" />
-                    Download Android APK (v1.0.0)
-                  </Button>
-                </a>
+                    <Button
+                      type="button"
+                      className="w-full sm:w-auto h-14 px-8 rounded-full bg-saffron-gradient hover:opacity-95 text-white font-bold text-base shadow-saffron-md flex items-center justify-center gap-3 transition-transform hover:scale-[1.02]"
+                    >
+                      <Download className="w-5 h-5" />
+                      Download Android APK (v1.0.0)
+                    </Button>
+                  </a>
+                  <Link href="/app" className="block w-full sm:w-auto">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full sm:w-auto h-14 px-6 rounded-full border-2 border-amber-300 text-[#C2410C] hover:bg-amber-50 font-bold text-base flex items-center justify-center gap-2"
+                    >
+                      <Sparkles className="w-5 h-5 text-amber-500" />
+                      Open App in Browser
+                    </Button>
+                  </Link>
+                </div>
                 <p className="text-xs text-[#8C7A74]">
                   Package: <code className="bg-amber-100/70 px-1.5 py-0.5 rounded font-mono">in.vivahkarlo.app</code> • File size: ~4 MB • 100% Virus &amp; Malware Free
                 </p>

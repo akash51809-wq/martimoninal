@@ -45,8 +45,8 @@ export const WelcomeScreen: React.FC = () => {
         {/* Script Cursive Brand Name */}
         <div className="inline-flex items-center gap-2 mb-1">
           <Sparkles className="w-5 h-5 text-amber-300 animate-pulse" />
-          <h1 className="font-cursive text-5xl md:text-6xl text-white font-medium drop-shadow-[0_4px_12px_rgba(255,119,0,0.5)]">
-            Sathiya
+          <h1 className="font-serif-royal text-4xl sm:text-5xl text-white font-bold drop-shadow-[0_4px_12px_rgba(255,119,0,0.5)]">
+            Vivah Kar Lo
           </h1>
           <Sparkles className="w-5 h-5 text-amber-300 animate-pulse" />
         </div>

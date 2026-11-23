@@ -91,7 +91,7 @@ export const MyProfileScreen: React.FC = () => {
           <div className="space-y-0.5">
             <div className="flex items-center gap-1.5">
               <Download className="w-4 h-4 text-amber-200" />
-              <h4 className="font-bold text-xs">Install Sathiya App</h4>
+              <h4 className="font-bold text-xs">Install Vivah Kar Lo App</h4>
             </div>
             <p className="text-[11px] text-amber-100">
               Install directly to phone home screen (No app store needed)
@@ -192,7 +192,7 @@ export const MyProfileScreen: React.FC = () => {
             className="w-full py-3 rounded-full border border-gray-300 text-gray-600 text-xs font-semibold hover:bg-gray-50 flex items-center justify-center gap-2"
           >
             <LogOut className="w-4 h-4 text-gray-400" />
-            <span>Sign Out of Sathiya</span>
+            <span>Sign Out of Vivah Kar Lo</span>
           </button>
         </div>
       </div>
