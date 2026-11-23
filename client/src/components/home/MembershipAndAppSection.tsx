@@ -263,18 +263,22 @@ export const MembershipAndAppSection: React.FC<MembershipAndAppSectionProps> = (
                   </Button>
                 </a>
 
-                {/* Web Simulator Preview */}
-                <Link href="/mobile" className="w-full">
+                {/* Direct Android APK Install Action */}
+                <a
+                  href="/downloads/vivahkarlo-release.apk"
+                  download="vivahkarlo-release.apk"
+                  className="w-full"
+                >
                   <Button
                     type="button"
                     variant="outline"
                     className="w-full h-12 px-6 rounded-full border-amber-300 text-[#3B0A18] hover:bg-amber-100/60 font-semibold text-sm flex items-center justify-center gap-2"
                   >
                     <Smartphone className="w-4 h-4 text-[#EA580C]" />
-                    Preview Mobile App in Browser
-                    <ArrowRight className="w-4 h-4 ml-1" />
+                    Direct APK Installer for Android
+                    <Download className="w-4 h-4 ml-1 text-[#EA580C]" />
                   </Button>
-                </Link>
+                </a>
 
                 {/* QR Code / Scan Indicator */}
                 <div className="flex items-center gap-3 pt-1 text-xs text-[#5C4740]">

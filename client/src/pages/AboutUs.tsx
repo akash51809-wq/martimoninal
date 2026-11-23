@@ -131,19 +131,19 @@ const AboutUs: React.FC = () => {
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3">
                     <Phone className="h-5 w-5 text-blue-200" />
-                    <span>+91 9176 400 700</span>
+                    <span>+91 93358 19686</span>
                   </div>
-                                     <div className="flex items-center space-x-3">
-                     <Mail className="h-5 w-5 text-blue-200" />
-                     <span>info@envaranmatrimony.com</span>
-                   </div>
-                   <div className="flex items-center space-x-3">
-                     <Globe className="h-5 w-5 text-blue-200" />
-                     <span>www.envaranmatrimony.com</span>
-                   </div>
+                  <div className="flex items-center space-x-3">
+                    <Mail className="h-5 w-5 text-blue-200" />
+                    <span>vivahkarlo@gmail.com</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Globe className="h-5 w-5 text-blue-200" />
+                    <span>www.vivahkarlo.in</span>
+                  </div>
                   <div className="flex items-center space-x-3">
                     <MessageCircle className="h-5 w-5 text-blue-200" />
-                    <span>WhatsApp: +91 9176 400 700</span>
+                    <span>WhatsApp: +91 93358 19686</span>
                   </div>
                 </div>
               </div>

@@ -243,7 +243,7 @@ export const DashboardSupportTab: React.FC<{
           </div>
           <div>
             <span className="text-[11px] font-bold text-[#8C6D62] uppercase tracking-wider">WhatsApp Support</span>
-            <p className="font-bold text-sm text-[#2B120C]">+91 98765 43210</p>
+            <p className="font-bold text-sm text-[#2B120C]">+91 93358 19686</p>
             <p className="text-[11px] text-emerald-700 font-semibold">Instant automated assistance</p>
           </div>
         </div>
@@ -254,7 +254,7 @@ export const DashboardSupportTab: React.FC<{
           </div>
           <div>
             <span className="text-[11px] font-bold text-[#8C6D62] uppercase tracking-wider">Email Grievance Desk</span>
-            <p className="font-bold text-sm text-[#2B120C]">support@vivahkarlo.com</p>
+            <p className="font-bold text-sm text-[#2B120C]">vivahkarlo@gmail.com</p>
             <p className="text-[11px] text-[#5C4740]">Guaranteed reply in 2 hours</p>
           </div>
         </div>

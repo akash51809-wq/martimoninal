@@ -126,15 +126,19 @@ export default function Footer() {
             <div className="space-y-3">
                              <div className="flex items-center text-gray-300">
                  <Phone className="h-4 w-4 mr-3 text-royal-blue" />
-                 <span>+91 9176 400 700</span>
+                 <a href="tel:+919335819686" className="hover:text-white transition-colors">
+                   +91 93358 19686
+                 </a>
                </div>
                <div className="flex items-center text-gray-300">
                  <Mail className="h-4 w-4 mr-3 text-royal-blue" />
-                 <span>info@envaranmatrimony.com</span>
+                 <a href="mailto:vivahkarlo@gmail.com" className="hover:text-white transition-colors">
+                   vivahkarlo@gmail.com
+                 </a>
                </div>
               <div className="flex items-start text-gray-300">
                 <MapPin className="h-4 w-4 mr-3 mt-1 text-royal-blue" />
-                <span>123 Matrimony Street, Love City, LC 12345</span>
+                <span>Civil Lines, Prayagraj, Uttar Pradesh 211001</span>
               </div>
             </div>
           </div>

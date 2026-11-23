@@ -18,20 +18,7 @@ const UserDashboardPage = lazy(() => import("@/pages/dashboard/UserDashboardPage
 const AdminPortalPage = lazy(() => import("@/pages/admin/AdminPortalPage"));
 const Landing = lazy(() => import("@/pages/Landing"));
 const AboutUs = lazy(() => import("@/pages/AboutUs"));
-
-const MobilePrototypeRoute = lazy(async () => {
-  const [{ MobileAppProvider }, { MobileDeviceShell }] = await Promise.all([
-    import("@/context/MobileAppContext"),
-    import("@/components/mobile/MobileDeviceShell"),
-  ]);
-  return {
-    default: () => (
-      <MobileAppProvider>
-        <MobileDeviceShell />
-      </MobileAppProvider>
-    ),
-  };
-});
+const MobileAppDownloadPage = lazy(() => import("@/pages/MobileAppDownloadPage"));
 
 const queryClient = new QueryClient();
 
@@ -73,8 +60,10 @@ export default function App() {
               <Route path="/admin/login" component={AdminPortalPage} />
               <Route path="/admin/:subtab" component={AdminPortalPage} />
 
-              {/* Preserved Mobile App UI (lazy-loaded only when opened) */}
-              <Route path="/mobile" component={MobilePrototypeRoute} />
+              {/* Official Mobile App Download Page (with direct APK download & simulator) */}
+              <Route path="/mobile" component={MobileAppDownloadPage} />
+              <Route path="/download" component={MobileAppDownloadPage} />
+              <Route path="/app" component={MobileAppDownloadPage} />
 
               {/* Legacy routes kept accessible (lazy-loaded) */}
               <Route path="/desktop" component={Landing} />

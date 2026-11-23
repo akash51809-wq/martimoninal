@@ -82,11 +82,11 @@ export default function AccountStatusPage() {
           <p className="font-bold text-[#3B0A18]">Support &amp; Appeals Contact:</p>
           <p className="flex items-center gap-2">
             <Phone className="w-4 h-4 text-[#EA580C]" />
-            +91 9176 400 700 (Trust &amp; Safety Desk)
+            +91 93358 19686 (Trust &amp; Safety Desk)
           </p>
           <p className="flex items-center gap-2">
             <Mail className="w-4 h-4 text-[#EA580C]" />
-            concierge@vivahkarlo.in
+            vivahkarlo@gmail.com
           </p>
         </div>
 

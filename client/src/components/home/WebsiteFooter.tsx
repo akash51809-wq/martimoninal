@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "wouter";
 import { VivahBrandLogo } from "@/components/home/VivahBrandLogo";
 import { POPULAR_CATEGORIES } from "@/data/homepageData";
-import { Mail, Phone, MapPin, ShieldCheck, Smartphone } from "lucide-react";
+import { Mail, Phone, MapPin, ShieldCheck, Smartphone, Download } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
 interface WebsiteFooterProps {
@@ -81,13 +81,14 @@ export const WebsiteFooter: React.FC<WebsiteFooterProps> = ({
                 </button>
               </li>
               <li>
-                <Link
-                  href="/mobile"
+                <a
+                  href="/downloads/vivahkarlo-release.apk"
+                  download="vivahkarlo-release.apk"
                   className="inline-flex items-center gap-1.5 text-amber-300 hover:text-white transition-colors font-medium"
                 >
-                  <Smartphone className="w-4 h-4" />
-                  Mobile App UI Preview
-                </Link>
+                  <Download className="w-4 h-4 text-amber-400" />
+                  Download Android App (APK)
+                </a>
               </li>
             </ul>
           </div>
@@ -119,15 +120,19 @@ export const WebsiteFooter: React.FC<WebsiteFooterProps> = ({
             <ul className="space-y-3 text-sm sm:text-[15px] text-amber-100/80">
               <li className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>+91 9176 400 700 (9 AM – 9 PM IST)</span>
+                <a href="tel:+919335819686" className="hover:text-amber-300 transition-colors">
+                  +91 93358 19686 (9 AM – 9 PM IST)
+                </a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>concierge@vivahkarlo.in</span>
+                <a href="mailto:vivahkarlo@gmail.com" className="hover:text-amber-300 transition-colors">
+                  vivahkarlo@gmail.com
+                </a>
               </li>
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <span>Bandra Kurla Complex, Mumbai, Maharashtra 400051</span>
+                <span>Civil Lines, Prayagraj, Uttar Pradesh 211001</span>
               </li>
             </ul>
           </div>
@@ -142,9 +147,14 @@ export const WebsiteFooter: React.FC<WebsiteFooterProps> = ({
             <a href="#trust" className="hover:text-amber-300 transition-colors">
               Privacy &amp; Security
             </a>
-            <Link href="/mobile" className="hover:text-amber-300 transition-colors">
-              Mobile UI
-            </Link>
+            <a
+              href="/downloads/vivahkarlo-release.apk"
+              download="vivahkarlo-release.apk"
+              className="hover:text-amber-300 transition-colors inline-flex items-center gap-1"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Download App
+            </a>
             <Link href="/admin" className="hover:text-amber-300 transition-colors">
               Admin
             </Link>

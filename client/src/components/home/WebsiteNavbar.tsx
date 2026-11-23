@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { Menu, Smartphone, Sparkles, Globe, ShieldCheck, ArrowRight, UserCheck, LogOut } from "lucide-react";
+import { Menu, Smartphone, Sparkles, Globe, ShieldCheck, ArrowRight, UserCheck, LogOut, Phone, Download } from "lucide-react";
 import { VivahBrandLogo } from "@/components/home/VivahBrandLogo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -73,15 +73,19 @@ export const WebsiteNavbar: React.FC<WebsiteNavbarProps> = ({
             <span>Free 36-Guna Vedic Kundli Compatibility</span>
           </div>
           <div className="flex items-center gap-4">
-            <span>24×7 Family Concierge: +91 9176 400 700</span>
+            <span className="inline-flex items-center gap-1.5">
+              <Phone className="w-3.5 h-3.5 text-amber-400" />
+              24×7 Family Concierge: +91 93358 19686
+            </span>
             <span className="text-amber-500/40">|</span>
-            <Link
-              href="/mobile"
+            <a
+              href="/downloads/vivahkarlo-release.apk"
+              download="vivahkarlo-release.apk"
               className="inline-flex items-center gap-1.5 text-amber-300 hover:text-white transition-colors font-semibold"
             >
-              <Smartphone className="w-3.5 h-3.5" />
-              Preview Mobile App UI
-            </Link>
+              <Download className="w-3.5 h-3.5 text-amber-400" />
+              Download Mobile App (APK)
+            </a>
           </div>
         </div>
       </div>
@@ -232,14 +236,15 @@ export const WebsiteNavbar: React.FC<WebsiteNavbarProps> = ({
                   </select>
                 </div>
 
-                <Link
-                  href="/mobile"
+                <a
+                  href="/downloads/vivahkarlo-release.apk"
+                  download="vivahkarlo-release.apk"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-2.5 px-3 py-3 rounded-xl text-sm font-semibold text-amber-800 bg-amber-50 border border-amber-200/80"
                 >
-                  <Smartphone className="w-4 h-4 text-[#EA580C]" />
-                  Open Mobile App UI
-                </Link>
+                  <Download className="w-4 h-4 text-[#EA580C]" />
+                  Download Mobile App (APK)
+                </a>
 
                 {currentAccount ? (
                   <div className="grid grid-cols-2 gap-2.5 mt-4">
